@@ -24,13 +24,17 @@ class MapComponent extends Component {
 	}
 
 	renderMap() {
-		console.log('location:', this.props.location)
-		L.Mapzen.apiKey = 'mapzen-bynLHKb';
-		let map = L.Mapzen.map('map', { scrollWheelZoom: false });
-		// map.setView(position, 12);
+		let position = [];
+		navigator.geolocation.getCurrentPosition((pos) => {
+			
+			position.push(pos.coords.latitude, pos.coords.longitude);
 
-
-		this.props.updateMapView(map);
+			L.Mapzen.apiKey = 'mapzen-bynLHKb';
+			let map = L.Mapzen.map('map', { scrollWheelZoom: false });
+			const marker = L.circleMarker(position);
+			marker.addTo(map);
+			map.setView(position, 16);
+		})
 	}
 
 	render() {
