@@ -7,10 +7,19 @@
   },
   "dependencies": {
     "axios": "^0.16.1",
+    "immutable": "^3.8.1",
+    "leaflet": "^1.0.3",
+    "leaflet.locatecontrol": "^0.60.0",
+    "mapbox-gl": "^0.36.0",
+    "mapzen.js": "^0.6.11",
     "react": "^15.5.4",
     "react-dom": "^15.5.4",
+    "react-leaflet": "^1.1.6",
+    "react-map-gl": "^2.0.2",
+    "react-mapbox-gl": "^1.9.2",
     "react-redux": "^5.0.4",
-    "redux": "^3.6.0"
+    "redux": "^3.6.0",
+    "redux-thunk": "^2.2.0"
   },
   "scripts": {
     "start": "react-scripts start",
