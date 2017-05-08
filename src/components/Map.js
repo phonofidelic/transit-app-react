@@ -16,7 +16,7 @@ const L = window.L;
 class MapComponent extends Component {
 	constructor(props) {
 		super(props);
-		this.props.getUserPos();		
+		// this.props.getUserPos();		
 	}
 
 	componentDidMount() {
