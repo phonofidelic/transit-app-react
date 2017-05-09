@@ -3,6 +3,10 @@ import { connect } from 'react-redux';
 import * as actions from '../actions';
 
 class RouteList extends Component {
+	constructor(props) {
+		super(props);
+		this.props.fetchNearbyRoutes();
+	}
 	render() {
 		return (
 			<div className="route-list-container">
@@ -14,7 +18,7 @@ class RouteList extends Component {
 
 const mapStateToProps = (state) => {
 	return {
-		routes: state.routeListReducer.routes
+		routes: state.routeListReducer.routeList
 	}
 }
 

@@ -1,6 +1,6 @@
 import { GET_NEARBY_ROUTES } from '../actiontypes';
 
-const INITIAL_STATE = { routes: [] };
+const INITIAL_STATE = { routeList: [] };
 
 const routeListReducer = (state = INITIAL_STATE, action) => {
 	switch (action.type) {
