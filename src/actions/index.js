@@ -1,8 +1,7 @@
 import axios from 'axios';
 import { 
-	GET_USER_POS, 
-	UPDATE_MAP_VIEW,
-	GET_NEARBY_ROUTES
+	REQUEST_ROUTES,
+	RECIEVE_ROUTES
 } from '../actiontypes';
 
 const _getUserPos = new Promise((resolve) => {
@@ -25,15 +24,24 @@ export const fetchNearbyRoutes = () => {
 			ne.lat = userPos[0] - 0.5;
 			ne.lng = userPos[1] + 0.5;
 
-			axios.get(`https://transit.land/api/v1/routes?bbox=${sw.lng},${sw.lat},${ne.lng},${ne.lat}`)
+			dispatch({
+				type: REQUEST_ROUTES
+			});
+
+			axios.get(`https://transit.land/api/v1/routes?bbox=${sw.lng},${sw.lat},${ne.lng},${ne.lat}&per_page=5`)
 				.then((response) => {
 					console.log('@fetchNearbyRoutes response:', response);
 					// TODO: dispatch with results of request
 					dispatch({
-						type: GET_NEARBY_ROUTES,
+						type: RECIEVE_ROUTES,
 						payload: response.data.routes
 					});
+				}).catch((err) => {
+					console.error('Transitland fetch error:', err);
+					// TODO: add handler
 				});
-		})
+		}).catch((err) => {
+			console.error('_getUserPos error:', err);
+		});
 	}
 }

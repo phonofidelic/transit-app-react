@@ -1,14 +1,22 @@
-import { GET_NEARBY_ROUTES } from '../actiontypes';
+import { REQUEST_ROUTES, RECIEVE_ROUTES } from '../actiontypes';
 
-const INITIAL_STATE = { routeList: [] };
+const INITIAL_STATE = { isFetching: false, routes: [] };
 
 const routeListReducer = (state = INITIAL_STATE, action) => {
 	switch (action.type) {
-		case GET_NEARBY_ROUTES:
+		case REQUEST_ROUTES:
 			return {
 				...state,
-				routeList: action.payload
+				isFetching: true
 			};
+
+		case RECIEVE_ROUTES:
+			return {
+				...state,
+				isFetching: false,
+				routes: action.payload,
+				lastUpdated: action.receivedAt
+			}
 
 		default:
 			return state;

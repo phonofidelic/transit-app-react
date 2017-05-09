@@ -4,10 +4,6 @@ import * as actions from '../actions';
 const L = window.L;
 
 class MapComponent extends Component {
-	constructor(props) {
-		super(props);
-		// this.props.getUserPos();		
-	}
 
 	componentDidMount() {
 		this.renderMap();		
