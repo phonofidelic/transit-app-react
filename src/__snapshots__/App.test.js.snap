@@ -1,0 +1,8 @@
+exports[`<App /> renders with default props 1`] = `
+<div
+  className="App">
+  <Header />
+  <Connect(MapComponent) />
+  <Connect(RouteList) />
+</div>
+`;

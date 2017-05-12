@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import * as actions from '../actions';
 import RouteListItem from './routeListItem';
 
-class RouteList extends Component {
+export class RouteList extends Component {
 
 	constructor(props) {
 		super(props);
@@ -25,7 +25,7 @@ class RouteList extends Component {
 		return (
 			<div className="route-list-container">
 				route list
-				{this.props.isFetching && routes.length === 0 && <div>loading...</div>}
+				{isFetching && routes.length === 0 && <div>loading...</div>}
 				{routes.length > 0 && this.renderList()}
 			</div>
 		);

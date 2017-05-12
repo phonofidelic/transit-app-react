@@ -1,6 +1,6 @@
 import { REQUEST_ROUTES, RECIEVE_ROUTES } from '../actiontypes';
 
-const INITIAL_STATE = { isFetching: false, routes: [] };
+export const INITIAL_STATE = { isFetching: false, routes: [] };
 
 const routeListReducer = (state = INITIAL_STATE, action) => {
 	switch (action.type) {

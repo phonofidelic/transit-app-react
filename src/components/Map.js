@@ -32,7 +32,7 @@ class MapComponent extends Component {
 
 const mapStateToProps = (state) => {
 	return {
-		location: state.userReducer.userPos
+		
 	}
 }
 
