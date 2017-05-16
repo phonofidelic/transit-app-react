@@ -21,6 +21,7 @@ class MapComponent extends Component {
 			marker.addTo(map);
 			map.setView(position, 16);
 		})
+		// this.props.initMap(L);
 	}
 
 	render() {

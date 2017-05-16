@@ -15,7 +15,7 @@ const routeListReducer = (state = INITIAL_STATE, action) => {
 				...state,
 				isFetching: false,
 				routes: action.payload,
-				lastUpdated: action.receivedAt
+				lastUpdated: action.recievedAt
 			}
 
 		default:

@@ -35,7 +35,8 @@ export class RouteList extends Component {
 const mapStateToProps = (state) => {
 	return {
 		routes: state.routeListReducer.routes,
-		isFetching: state.routeListReducer.isFetching
+		isFetching: state.routeListReducer.isFetching,
+		lastUpdated: state.routeListReducer.lastUpdated
 	}
 }
 
