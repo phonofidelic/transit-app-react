@@ -2,13 +2,9 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import * as actions from '../actions';
 import RouteListItem from './routeListItem';
+import RoutesData from './RoutesData';
 
 export class RouteList extends Component {
-
-	constructor(props) {
-		super(props);
-		this.props.fetchNearbyRoutes();
-	}
 
 	renderList() {
 		return (
@@ -34,10 +30,12 @@ export class RouteList extends Component {
 
 const mapStateToProps = (state) => {
 	return {
-		routes: state.routeListReducer.routes,
-		isFetching: state.routeListReducer.isFetching,
-		lastUpdated: state.routeListReducer.lastUpdated
+		// routes: state.routeListReducer.routes,
+		// isFetching: state.routeListReducer.isFetching,
+		// lastUpdated: state.routeListReducer.lastUpdated
 	}
 }
 
-export default connect(mapStateToProps, actions)(RouteList);
+export default connect(mapStateToProps, actions)(RoutesData(RouteList));
+
+

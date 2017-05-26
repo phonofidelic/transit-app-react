@@ -1,27 +1,21 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import * as actions from '../actions';
-const L = window.L;
+import RoutesData from './RoutesData';
 
 class MapComponent extends Component {
 
 	componentDidMount() {
-		this.renderMap();		
+
+		// console.log('@MapComponent componentDidMount, routes:', this.props.routes)
+		// this.props.initMap(this.props.routes);
 	}
 
-	renderMap() {
-		let position = [];
-		navigator.geolocation.getCurrentPosition((pos) => {
-			
-			position.push(pos.coords.latitude, pos.coords.longitude);
-
-			L.Mapzen.apiKey = 'mapzen-bynLHKb';
-			let map = L.Mapzen.map('map', { scrollWheelZoom: false });
-			const marker = L.circleMarker(position);
-			marker.addTo(map);
-			map.setView(position, 16);
-		})
-		// this.props.initMap(L);
+	renderRouteLines() {
+		const { routes, map } = this.props;
+		// console.log('@renderRouteLines routes:', routes);
+		// console.log('@renderRouteLines map', this.props.map);
+		this.props.updateMap(map, routes)
 	}
 
 	render() {
@@ -33,8 +27,12 @@ class MapComponent extends Component {
 
 const mapStateToProps = (state) => {
 	return {
-		
+		map: state.mapReducer.map,
+		mapLoaded: state.mapReducer.mapLoaded,
+		routes: state.routeListReducer.routes
 	}
 }
 
-export default connect(mapStateToProps, actions)(MapComponent);
+export default connect(mapStateToProps, actions)(RoutesData(MapComponent));
+
+
