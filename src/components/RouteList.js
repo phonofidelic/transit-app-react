@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import * as actions from '../actions';
-import RouteListItem from './routeListItem';
+import RouteListItem from './RouteListItem';
 import RoutesData from './RoutesData';
 
 export class RouteList extends Component {
@@ -10,19 +10,23 @@ export class RouteList extends Component {
 		return (
 			<ul>
 				{this.props.routes.map((route, i) => {
-					return <RouteListItem key={i} name={route.name} />
+					return <RouteListItem key={i} 
+																name={route.name}
+																longName={route.tags.route_long_name}
+																color={route.color}
+																className="route-list-item" />
 				})}
 			</ul>			
 		);
 	}
 
 	render() {
-		const { isFetching, routes } = this.props;
+		const { isFetching, colorsSet, mapLoaded, routes } = this.props;
 		return (
-			<div className="route-list-container">
+			<div>
 				route list
 				{isFetching && routes.length === 0 && <div>loading...</div>}
-				{routes.length > 0 && this.renderList()}
+				{routes && this.renderList()}
 			</div>
 		);
 	}

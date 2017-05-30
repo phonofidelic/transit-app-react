@@ -1,6 +1,12 @@
-import { REQUEST_ROUTES, RECIEVE_ROUTES } from '../actiontypes';
+import { REQUEST_ROUTES, 
+				 RECIEVE_ROUTES, 
+				 SET_ROUTE_COLORS } from '../actiontypes';
 
-export const INITIAL_STATE = { isFetching: false, routes: [] };
+export const INITIAL_STATE = { 
+	isFetching: false, 
+	colorsSet: false, 
+	routes: [] 
+};
 
 const routeListReducer = (state = INITIAL_STATE, action) => {
 	switch (action.type) {
@@ -13,9 +19,17 @@ const routeListReducer = (state = INITIAL_STATE, action) => {
 		case RECIEVE_ROUTES:
 			return {
 				...state,
-				isFetching: false,
+				// isFetching: false,
 				routes: action.payload,
 				lastUpdated: action.recievedAt
+			}
+
+		case SET_ROUTE_COLORS:
+			return {
+				...state,
+				colorsSet: true,
+				isFetching:false,
+				routes: action.payload
 			}
 
 		default:

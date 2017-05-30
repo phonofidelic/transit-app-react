@@ -5,16 +5,8 @@ import RoutesData from './RoutesData';
 
 class MapComponent extends Component {
 
-	componentDidMount() {
-
-		// console.log('@MapComponent componentDidMount, routes:', this.props.routes)
-		// this.props.initMap(this.props.routes);
-	}
-
 	renderRouteLines() {
 		const { routes, map } = this.props;
-		// console.log('@renderRouteLines routes:', routes);
-		// console.log('@renderRouteLines map', this.props.map);
 		this.props.updateMap(map, routes)
 	}
 

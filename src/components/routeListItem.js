@@ -4,7 +4,10 @@ class RouteListItem extends Component {
 
 	render() {
 		return (
-			<li>{this.props.name}</li>
+			<li className="route-list-item" 
+					style={{backgroundColor: this.props.color}}>
+						{this.props.name} - {this.props.longName}
+			</li>
 		)
 	}
 }

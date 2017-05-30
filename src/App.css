@@ -7,6 +7,14 @@
   /*width: 100%*/
 }
 
+ul {
+	padding: 0;
+}
+
 li {
 	list-style: none;
+}
+
+.route-list-item {
+	height: 50px;
 }
