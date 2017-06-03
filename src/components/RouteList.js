@@ -6,27 +6,37 @@ import RoutesData from './RoutesData';
 
 export class RouteList extends Component {
 
-	renderList() {
+	renderList(error) {
 		return (
 			<ul>
-				{this.props.routes.map((route, i) => {
-					return <RouteListItem key={i} 
+				{this.props.routes.map((route) => {
+					return <RouteListItem key={route.onestop_id}
+																onestopId={route.onestop_id}
 																name={route.name}
 																longName={route.tags.route_long_name}
 																color={route.color}
+																stops={route.stops_served_by_route.slice(0, 9)}
+																selected={route.selected}
+																route={route}
 																className="route-list-item" />
 				})}
 			</ul>			
 		);
 	}
 
+	renderError() {
+		return (
+			<div>Error: {this.props.error}</div>
+		);
+	}
+
 	render() {
-		const { isFetching, colorsSet, mapLoaded, routes } = this.props;
+		const { isFetching, error, mapLoaded, routes } = this.props;
 		return (
 			<div>
-				route list
 				{isFetching && routes.length === 0 && <div>loading...</div>}
 				{routes && this.renderList()}
+				{error && this.renderError(error)}
 			</div>
 		);
 	}
@@ -37,6 +47,7 @@ const mapStateToProps = (state) => {
 		// routes: state.routeListReducer.routes,
 		// isFetching: state.routeListReducer.isFetching,
 		// lastUpdated: state.routeListReducer.lastUpdated
+		error: state.routeListReducer.error
 	}
 }
 

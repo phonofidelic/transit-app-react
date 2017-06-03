@@ -1,11 +1,15 @@
 import { REQUEST_ROUTES, 
 				 RECIEVE_ROUTES, 
-				 SET_ROUTE_COLORS } from '../actiontypes';
+				 SET_ROUTE_COLORS,
+				 SELECT_ROUTE,
+				 FETCH_ROUTES_ERROR } from '../actiontypes';
 
 export const INITIAL_STATE = { 
 	isFetching: false, 
 	colorsSet: false, 
-	routes: [] 
+	routes: [],
+	selectedRoute: null,
+	error: null
 };
 
 const routeListReducer = (state = INITIAL_STATE, action) => {
@@ -32,9 +36,22 @@ const routeListReducer = (state = INITIAL_STATE, action) => {
 				routes: action.payload
 			}
 
+		case SELECT_ROUTE:
+			return {
+				...state,
+				routes: action.payload
+			}
+
+		case FETCH_ROUTES_ERROR:
+			return {
+				...state,
+				isFetching: false,
+				error: action.payload
+			}
+
 		default:
 			return state;
 	}
 }
 
-export default routeListReducer
+export default routeListReducer;

@@ -9,6 +9,7 @@
 
 ul {
 	padding: 0;
+	margin: 0;
 }
 
 li {
@@ -16,5 +17,25 @@ li {
 }
 
 .route-list-item {
-	height: 50px;
+	/*height: 50px;*/
+	vertical-align: middle;
+	line-height: 50px;
+	color: #fff;
+}
+
+.route-list-item-header {
+	
+}
+
+.stop-list {
+	display: block;
+	background: #fff;
+  /*position: relative;*/
+}
+
+.stop-list-item {
+	/*background: #fff;*/
+	z-index: 1001;
+	display: block;
+	color: #000;
 }

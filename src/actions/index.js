@@ -5,7 +5,10 @@ import {
 	RECIEVE_ROUTES,
 	SET_ROUTE_COLORS,
 	INIT_MAP,
-	MAP_LOADED
+	MAP_LOADED,
+	SELECT_ROUTE,
+	FETCH_ROUTES_ERROR,
+	FETCH_STOPS
 } from '../actiontypes';
 const L = window.L;
 const randomColor = require('randomcolor');
@@ -56,12 +59,10 @@ const _setUpRouteVisuals = (routes, dispatch) => new Promise((resolve) => {
 	let routeLineLayer = L.layerGroup();
 	let randomColors = randomColor({
 		count: routes.length,
-		// luminosity: 'light'
+		luminosity: 'dark'
 		// hue: 'red'
 	});
-	// console.log('##randomColor:', randomColors, routes.length)
 
-	// console.log('@_setUpRouteVisuals routes:', routes)
 	routes.map((route) => {
 		let lines = route.geometry.coordinates;
 
@@ -80,12 +81,8 @@ const _setUpRouteVisuals = (routes, dispatch) => new Promise((resolve) => {
 				// routeLineLayer.addLayer(L.polyline(latLngs, {color: randomColors[i]}));	
 				randomColors.splice(i, i+1);
 			}
-
 		});
-		// console.log('@_setUpRouteVisuals lines:', lines)
 	});
-	// console.log('@_setUpRouteVisuals routeLineLayer:', routeLineLayer)
-	console.log('@_setUpRouteVisuals, routes:', routes);
 
 	dispatch({
 		type: SET_ROUTE_COLORS,
@@ -117,6 +114,7 @@ const _initMap = (routes, dispatch) => {
 				type: INIT_MAP,
 				payload: map
 			});
+			
 			return { map: map, routes: routes };
 		})
 		.then(({map, routes}) => {
@@ -129,8 +127,6 @@ const _initMap = (routes, dispatch) => {
 			_setUpRouteVisuals(routes, dispatch)
 			.then((routeLineLayer) => {
 				map.addLayer(routeLineLayer);
-				// routeLineLayer.addTo(map);
-				console.log('@_initMap _setUpRouteVisuals, routeLineLayer:', routeLineLayer)
 			})
 
 			dispatch({
@@ -159,19 +155,21 @@ export const fetchNearbyRoutes = () => {
 				type: REQUEST_ROUTES
 			});
 
-			let perPage = 'per_page=5';
+			let perPage = 'per_page=10';
 			axios.get(`https://transit.land/api/v1/routes?bbox=${sw.lng},${sw.lat},${ne.lng},${ne.lat}&${perPage}`)
 				.then((response) => {
-					console.log('@fetchNearbyRoutes response:', response);
-
+					console.log('@fetchNearbyRoutes response:', response);					
 
 					return response.data.routes
 				})
 				// init map here? !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-				.then((routes) => {
+				.then((routes) => {			
+
 					_initMap(routes, dispatch);
 
-					console.log('##routes:', routes)
+					// Create a deselected state for each route
+					routes.forEach((route) => route.selected = false);
+
 					dispatch({
 						type: RECIEVE_ROUTES,
 						recievedAt: Date.now(),
@@ -180,7 +178,11 @@ export const fetchNearbyRoutes = () => {
 				})
 				.catch((err) => {
 					console.error('Transitland fetch error:', err);
-					// TODO: add handler
+					
+					dispatch({
+						type: FETCH_ROUTES_ERROR,
+						payload: 'Sorry, could not retrieve route info at this time. \nPlease try again later.'
+					});
 				});
 		})
 		.catch((err) => {
@@ -189,7 +191,38 @@ export const fetchNearbyRoutes = () => {
 	}
 }
 
+export const selectRoute = (routes, id) => {
+	console.log('@selectRoute:', id, routes);
+	const newRoutes = routes.map((route) => {
 
+		if (route.onestop_id === id) {
+			console.log('### route:', route.selected)
+			route.selected = !route.selected;
+		} else {
+			route.selected = false;			
+		}
+		return route;
+	});
+	// console.log('### newRoutes:', newRoutes)
+	return (dispatch) => {
+		dispatch({
+			type: SELECT_ROUTE,
+			payload: newRoutes
+		});
+	}
+}
+
+export const fetchStops = (route) => {
+	const stops = route.stops_served_by_route.slice(0,9)
+
+	console.log('@fetchStops, stops:', stops)
+	return (dispatch) => {
+		dispatch({
+			type: FETCH_STOPS,
+			payload: stops
+		});
+	}
+}
 
 export const updateMap = (map, routes) => {
 	console.log('@updateMap map, routes:', map, routes);
