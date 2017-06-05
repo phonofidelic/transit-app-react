@@ -95,7 +95,7 @@ const _setUpRouteVisuals = (routes, dispatch) => new Promise((resolve) => {
 
 const _initMap = (routes, dispatch) => {
 
-	console.log('@_initMap is called', a+=1);
+	console.log('@_initMap is called');
 		let position = [];
 		_getUserPos.then((userPos) => {
 			position.push(userPos[0], userPos[1]);
