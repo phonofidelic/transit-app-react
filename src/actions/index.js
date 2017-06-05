@@ -8,7 +8,8 @@ import {
 	MAP_LOADED,
 	SELECT_ROUTE,
 	FETCH_ROUTES_ERROR,
-	FETCH_STOPS
+	FETCH_STOPS,
+	FOCUS_ROUTE
 } from '../actiontypes';
 const L = window.L;
 const randomColor = require('randomcolor');
@@ -92,12 +93,9 @@ const _setUpRouteVisuals = (routes, dispatch) => new Promise((resolve) => {
 	resolve(routeLineLayer);
 });
 
-// Prevent leaflet map from being created twice
-let a = 0;
 const _initMap = (routes, dispatch) => {
 
 	console.log('@_initMap is called', a+=1);
-	if (a > 1) {
 		let position = [];
 		_getUserPos.then((userPos) => {
 			position.push(userPos[0], userPos[1]);
@@ -137,7 +135,6 @@ const _initMap = (routes, dispatch) => {
 			console.error('_initMap error:', err);
 			// TODO: add handler
 		});
-	}
 }
 
 export const fetchNearbyRoutes = () => {
@@ -159,12 +156,10 @@ export const fetchNearbyRoutes = () => {
 			axios.get(`https://transit.land/api/v1/routes?bbox=${sw.lng},${sw.lat},${ne.lng},${ne.lat}&${perPage}`)
 				.then((response) => {
 					console.log('@fetchNearbyRoutes response:', response);					
+					
+					let routes = response.data.routes;
 
-					return response.data.routes
-				})
-				// init map here? !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-				.then((routes) => {			
-
+					// init map here? !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 					_initMap(routes, dispatch);
 
 					// Create a deselected state for each route

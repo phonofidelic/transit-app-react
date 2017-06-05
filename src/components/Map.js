@@ -5,11 +5,6 @@ import RoutesData from './RoutesData';
 
 class MapComponent extends Component {
 
-	renderRouteLines() {
-		const { routes, map } = this.props;
-		this.props.updateMap(map, routes)
-	}
-
 	render() {
 		return (
 			<div id="map"></div>
@@ -20,11 +15,10 @@ class MapComponent extends Component {
 const mapStateToProps = (state) => {
 	return {
 		map: state.mapReducer.map,
-		mapLoaded: state.mapReducer.mapLoaded,
-		routes: state.routeListReducer.routes
+		mapLoaded: state.mapReducer.mapLoaded
 	}
 }
 
-export default connect(mapStateToProps, actions)(RoutesData(MapComponent));
+export default connect(mapStateToProps, actions)(MapComponent);
 
 

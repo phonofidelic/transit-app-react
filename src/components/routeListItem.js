@@ -24,7 +24,7 @@ class RouteListItem extends Component {
 					onClick={() => {this.props.selectRoute(this.props.routes, this.props.onestopId)}}
 					>
 				<div className="route-list-item-header">
-					{this.props.name} - {this.props.longName} - {''+this.props.selected}
+					{this.props.name} - {this.props.longName}
 					
 				</div>
 				{selected ? this.renderStops() : null}

@@ -9,6 +9,7 @@ export const GET_USER_POS = 'get_user_pos',
 						 SET_ROUTE_COLORS = 'set_route_colors',
 						 SELECT_ROUTE = 'select_route',
 						 FETCH_ROUTES_ERROR = 'fetch_error',
+						 FOCUS_ROUTE = 'focus_route',
 
 						 IS_SELECTED = 'is_selected',
 
