@@ -6,6 +6,12 @@ import RoutesData from './RoutesData';
 
 export class RouteList extends Component {
 
+	constructor(props) {
+		super(props);
+
+		this.props.init();
+	}
+
 	renderList(error) {
 		return (
 			<ul>
@@ -44,13 +50,13 @@ export class RouteList extends Component {
 
 const mapStateToProps = (state) => {
 	return {
-		// routes: state.routeListReducer.routes,
-		// isFetching: state.routeListReducer.isFetching,
-		// lastUpdated: state.routeListReducer.lastUpdated
+		routes: state.routeListReducer.routes,
+		isFetching: state.routeListReducer.isFetching,
+		lastUpdated: state.routeListReducer.lastUpdated,
 		error: state.routeListReducer.error
 	}
 }
 
-export default connect(mapStateToProps, actions)(RoutesData(RouteList));
+export default connect(mapStateToProps, actions)(RouteList);
 
 

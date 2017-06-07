@@ -1,5 +1,4 @@
 import axios from 'axios';
-// import store from '../index';
 import { 
 	REQUEST_ROUTES,
 	RECIEVE_ROUTES,
@@ -33,61 +32,46 @@ const STATIC_COLORS = [
 	'fccc0a'
 ];
 
-// store.subscribe(() => {
-// 	let state = this.getState()
-// 	console.log('##state:', state)
-// })
-// console.log('## store:', store)
-
 const _getUserPos = new Promise((resolve) => {
-	let position = [];
+	let position = {};
 	navigator.geolocation.getCurrentPosition((pos) => {
-		position.push(pos.coords.latitude, pos.coords.longitude);
+		// position.push(pos.coords.latitude, pos.coords.longitude);
+		position.lat = pos.coords.latitude;
+		position.lng = pos.coords.longitude;
 		console.log('@getUserPos position:', position);
 		resolve(position);
 	});
 });
 
-const _routeColorCheck = (routes) => {
-	routes.forEach((route) => {
-		if (!route.color) {
-
-		}
-	});
-}
-
-const _setUpRouteVisuals = (routes, dispatch) => new Promise((resolve) => {
-	let routeLineLayer = L.layerGroup();
+const _routeColorCheck = (routes, dispatch) => new Promise((resolve) => {
 	let randomColors = randomColor({
 		count: routes.length,
 		luminosity: 'dark'
-		// hue: 'red'
+	});	
+
+	routes.forEach((route, i) => {
+		if (!route.color) {
+			route.color = randomColors[i];
+			// console.log('### route.color:', route.color, i)
+			// randomColors.splice(i, i+1);
+		}
 	});
+	console.log('@_routeColorCheck, routes:', routes)
+	resolve(routes);
+});
+
+const _setUpRouteVisuals = (routes) => new Promise((resolve) => {
+	let routeLineLayer = L.layerGroup();
 
 	routes.map((route) => {
 		let lines = route.geometry.coordinates;
-
 		lines.forEach((line, i) => {
 			let latLngs = [];
 			line.forEach((coord) => {
 				latLngs.push(L.latLng(coord[1], coord[0]));
 			});
-
-			// Check that the route has a color prop
-			if (route.color) {
-				routeLineLayer.addLayer(L.polyline(latLngs, {color: route.color}));
-			} else {
-				route.color = randomColors[i];
-				routeLineLayer.addLayer(L.polyline(latLngs, {color: route.color}));	
-				// routeLineLayer.addLayer(L.polyline(latLngs, {color: randomColors[i]}));	
-				randomColors.splice(i, i+1);
-			}
+			routeLineLayer.addLayer(L.polyline(latLngs, {color: route.color}));
 		});
-	});
-
-	dispatch({
-		type: SET_ROUTE_COLORS,
-		payload: routes
 	});
 
 	resolve(routeLineLayer);
@@ -98,7 +82,7 @@ const _initMap = (routes, dispatch) => {
 	console.log('@_initMap is called');
 		let position = [];
 		_getUserPos.then((userPos) => {
-			position.push(userPos[0], userPos[1]);
+			position.push(userPos.lat, userPos.lng);
 
 			L.Mapzen.apiKey = 'mapzen-bynLHKb';
 			let map = L.Mapzen.map('map', { 
@@ -107,6 +91,37 @@ const _initMap = (routes, dispatch) => {
 			});
 			
 			map.setView(position, 12);
+
+			// Event handler for map scrolling, fetches nearby routes
+			// of new map center
+			map.on('moveend', (e) => {
+				// TODO: create updateRoutes function that checks
+				// for new routes info
+
+				// get new map center lat/lng
+				_fetchNearbyRoutes(map.getCenter(), dispatch)
+				.then((routes) => {
+					_routeColorCheck(routes)
+					.then((routes) => {
+						dispatch({
+							type: SET_ROUTE_COLORS,
+							payload: routes
+						});
+
+						return routes;
+					}).then((routes) => {
+						_setUpRouteVisuals(routes)
+						.then((routeLineLayer) => {
+							map.addLayer(routeLineLayer);
+						})
+					})
+					.catch((err) => {
+						console.error('_routeColorCheck error:', err)
+					})
+				}).catch((err) => {
+					console.error('_fetchNearbyRoutes error:' , err)
+				});
+			})
 			
 			dispatch({ 
 				type: INIT_MAP,
@@ -122,7 +137,7 @@ const _initMap = (routes, dispatch) => {
 			const marker = L.circleMarker(position);
 			marker.addTo(map);
 
-			_setUpRouteVisuals(routes, dispatch)
+			_setUpRouteVisuals(routes)
 			.then((routeLineLayer) => {
 				map.addLayer(routeLineLayer);
 			})
@@ -137,48 +152,87 @@ const _initMap = (routes, dispatch) => {
 		});
 }
 
-export const fetchNearbyRoutes = () => {
-	console.log('@fetchNearbyRoutes is called');
-	return (dispatch) => {
-		_getUserPos.then((userPos) => {
-			let sw = {};
-			let ne = {};
-			sw.lat = userPos[0] + 0.5;
-			sw.lng = userPos[1] - 0.5;
-			ne.lat = userPos[0] - 0.5;
-			ne.lng = userPos[1] + 0.5;
+const _updateNearbyRoutes = (mapCenter, dispatch) => {
+
+}
+
+const _fetchNearbyRoutes = (position, dispatch) => new Promise((resolve) => {
+	console.log('@fetchNearbyRoutes is called', position);
+
+	let sw = {};
+	let ne = {};
+	sw.lat = position.lat + 0.5;
+	sw.lng = position.lng - 0.5;
+	ne.lat = position.lat - 0.5;
+	ne.lng = position.lng + 0.5;
+
+	dispatch({
+		type: REQUEST_ROUTES
+	});
+
+	let perPage = 'per_page=10';
+	axios.get(`https://transit.land/api/v1/routes?bbox=${sw.lng},${sw.lat},${ne.lng},${ne.lat}&${perPage}`)
+		.then((response) => {
+			console.log('@fetchNearbyRoutes response:', response);					
+			
+			let routes = response.data.routes;
+
+			// Create a deselected state for each route
+			routes.forEach((route) => route.selected = false);
 
 			dispatch({
-				type: REQUEST_ROUTES
+				type: RECIEVE_ROUTES,
+				recievedAt: Date.now(),
+				payload: routes
 			});
 
-			let perPage = 'per_page=10';
-			axios.get(`https://transit.land/api/v1/routes?bbox=${sw.lng},${sw.lat},${ne.lng},${ne.lat}&${perPage}`)
-				.then((response) => {
-					console.log('@fetchNearbyRoutes response:', response);					
-					
-					let routes = response.data.routes;
+			console.log('@_fetchNearbyRoutes, routes:', routes)
+			resolve(routes);
+		})
+		.catch((err) => {
+			console.error('Transitland fetch error:', err);
+			
+			dispatch({
+				type: FETCH_ROUTES_ERROR,
+				payload: 'Sorry, could not retrieve route info at this time. \nPlease try again later.'
+			});
+		});
+});
 
-					// init map here? !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-					_initMap(routes, dispatch);
+export const init = () => {
+	console.log('@init is called');
+	return (dispatch) => {
+		_getUserPos.then((userPos) => {
+		_fetchNearbyRoutes(userPos, dispatch)
+			.then((routes) => {
+				console.log('@before _routeColorCheck, routes:', routes)
 
-					// Create a deselected state for each route
-					routes.forEach((route) => route.selected = false);
+				_routeColorCheck(routes).then((routes) => {
+					console.log('@after _routeColorCheck, routes:', routes)					
 
 					dispatch({
-						type: RECIEVE_ROUTES,
-						recievedAt: Date.now(),
+						type: SET_ROUTE_COLORS,
 						payload: routes
 					});
+
+					return routes
+				})
+				.then((routes) => {
+					_initMap(routes, dispatch);
 				})
 				.catch((err) => {
-					console.error('Transitland fetch error:', err);
-					
-					dispatch({
-						type: FETCH_ROUTES_ERROR,
-						payload: 'Sorry, could not retrieve route info at this time. \nPlease try again later.'
-					});
+					console.log('_routeColorCheck error:', err);
+					// TODO: add error handler
+				})
+			})			
+			.catch((err) => {
+				console.error('Transitland fetch error:', err);
+				
+				dispatch({
+					type: FETCH_ROUTES_ERROR,
+					payload: 'Sorry, could not retrieve route info at this time. \nPlease try again later.'
 				});
+			});
 		})
 		.catch((err) => {
 			console.error('_getUserPos error:', err);
