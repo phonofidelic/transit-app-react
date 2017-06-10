@@ -10,6 +10,7 @@ import {
 	FETCH_STOPS,
 	FOCUS_ROUTE
 } from '../actiontypes';
+import { openDb, populateDb } from '../utils/dbUtils';
 const L = window.L;
 const randomColor = require('randomcolor');
 
@@ -43,6 +44,8 @@ const _getUserPos = new Promise((resolve) => {
 	});
 });
 
+const dbPromise = openDb();
+
 const _routeColorCheck = (routes, dispatch) => new Promise((resolve) => {
 	let randomColors = randomColor({
 		count: routes.length,
@@ -56,7 +59,7 @@ const _routeColorCheck = (routes, dispatch) => new Promise((resolve) => {
 			// randomColors.splice(i, i+1);
 		}
 	});
-	console.log('@_routeColorCheck, routes:', routes)
+	// console.log('@_routeColorCheck, routes:', routes)
 	resolve(routes);
 });
 
@@ -94,33 +97,49 @@ const _initMap = (routes, dispatch) => {
 
 			// Event handler for map scrolling, fetches nearby routes
 			// of new map center
+			let lastBbox = map.getBounds(); 
+			console.log('### lastBbox:', lastBbox)
 			map.on('moveend', (e) => {
-				// TODO: create updateRoutes function that checks
-				// for new routes info
+				// Get new map center lat/lng
+				const mapCenter = map.getCenter();
+				console.log('### mapCenter:', mapCenter);
 
-				// get new map center lat/lng
-				_fetchNearbyRoutes(map.getCenter(), dispatch)
-				.then((routes) => {
-					_routeColorCheck(routes)
+				// Check if mapCenter is inside of last bbox
+				if (mapCenter.lat <= lastBbox._northEast.lat && 
+						mapCenter.lng <= lastBbox._northEast.lng && 
+						mapCenter.lat >= lastBbox._southWest.lat &&
+						mapCenter.lng >= lastBbox._southWest.lng) {
+					return;
+				} else {
+					// TODO: create updateRoutes function that checks
+					// for new routes info
+						
+					_fetchNearbyRoutes(mapCenter, dispatch)
 					.then((routes) => {
-						dispatch({
-							type: SET_ROUTE_COLORS,
-							payload: routes
-						});
+						_routeColorCheck(routes)
+						.then((routes) => {
+							dispatch({
+								type: SET_ROUTE_COLORS,
+								payload: routes
+							});
 
-						return routes;
-					}).then((routes) => {
-						_setUpRouteVisuals(routes)
-						.then((routeLineLayer) => {
-							map.addLayer(routeLineLayer);
+							// Set new bbox
+							lastBbox = map.getBounds();
+
+							return routes;
+						}).then((routes) => {
+							_setUpRouteVisuals(routes)
+							.then((routeLineLayer) => {
+								map.addLayer(routeLineLayer);
+							})
 						})
-					})
-					.catch((err) => {
-						console.error('_routeColorCheck error:', err)
-					})
-				}).catch((err) => {
-					console.error('_fetchNearbyRoutes error:' , err)
-				});
+						.catch((err) => {
+							console.error('_routeColorCheck error:', err)
+						})
+					}).catch((err) => {
+						console.error('_fetchNearbyRoutes error:' , err)
+					});
+				}
 			})
 			
 			dispatch({ 
@@ -131,7 +150,7 @@ const _initMap = (routes, dispatch) => {
 			return { map: map, routes: routes };
 		})
 		.then(({map, routes}) => {
-			console.log('@_initMap \nmap:', map, 'routes:', routes);
+			// console.log('@_initMap \nmap:', map, 'routes:', routes);
 
 
 			const marker = L.circleMarker(position);
@@ -156,7 +175,7 @@ const _updateNearbyRoutes = (mapCenter, dispatch) => {
 
 }
 
-const _fetchNearbyRoutes = (position, dispatch) => new Promise((resolve) => {
+const _fetchNearbyRoutes = (position, dispatch, lastPos) => new Promise((resolve) => {
 	console.log('@fetchNearbyRoutes is called', position);
 
 	let sw = {};
@@ -166,14 +185,17 @@ const _fetchNearbyRoutes = (position, dispatch) => new Promise((resolve) => {
 	ne.lat = position.lat - 0.5;
 	ne.lng = position.lng + 0.5;
 
+
+
 	dispatch({
-		type: REQUEST_ROUTES
+		type: REQUEST_ROUTES,
+		payload: position
 	});
 
 	let perPage = 'per_page=10';
 	axios.get(`https://transit.land/api/v1/routes?bbox=${sw.lng},${sw.lat},${ne.lng},${ne.lat}&${perPage}`)
 		.then((response) => {
-			console.log('@fetchNearbyRoutes response:', response);					
+			// console.log('@fetchNearbyRoutes response:', response);					
 			
 			let routes = response.data.routes;
 
@@ -201,14 +223,12 @@ const _fetchNearbyRoutes = (position, dispatch) => new Promise((resolve) => {
 
 export const init = () => {
 	console.log('@init is called');
+	// openDb();
 	return (dispatch) => {
 		_getUserPos.then((userPos) => {
 		_fetchNearbyRoutes(userPos, dispatch)
 			.then((routes) => {
-				console.log('@before _routeColorCheck, routes:', routes)
-
 				_routeColorCheck(routes).then((routes) => {
-					console.log('@after _routeColorCheck, routes:', routes)					
 
 					dispatch({
 						type: SET_ROUTE_COLORS,
@@ -219,6 +239,9 @@ export const init = () => {
 				})
 				.then((routes) => {
 					_initMap(routes, dispatch);
+
+					// Save routes data to idb
+					populateDb(dbPromise, routes);
 				})
 				.catch((err) => {
 					console.log('_routeColorCheck error:', err);

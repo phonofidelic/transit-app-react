@@ -7,6 +7,18 @@ import rootReducer from './reducers';
 import App from './App';
 import './index.css';
 
+if('serviceWorker' in navigator) {
+	navigator.serviceWorker.register('./sw.js')
+	.then((reg) => {
+		console.log('Service Worker registered!');
+	})
+	.catch((err) => {
+		console.error('serviceWorker error:', err);
+	});
+} else {
+	console.log('serviceWorker not supported!');
+}
+
 const inspector = window.window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__();
 const createStoreWithMiddleware = applyMiddleware(reduxThunk)(createStore)
 const store = createStoreWithMiddleware(rootReducer, inspector);

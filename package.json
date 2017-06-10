@@ -3,12 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "devDependencies": {
-    "react-scripts": "0.9.5"
+    "react-scripts": "1.0.0"
   },
   "dependencies": {
     "axios": "^0.16.1",
     "enzyme": "^2.8.2",
     "enzyme-to-json": "^1.5.1",
+    "idb": "^2.0.3",
     "immutable": "^3.8.1",
     "leaflet": "^1.0.3",
     "leaflet.locatecontrol": "^0.60.0",
