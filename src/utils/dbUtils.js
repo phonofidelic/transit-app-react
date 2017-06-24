@@ -29,7 +29,7 @@ export const populateDb = (dbPromise, routes) => {
 		const store = tx.objectStore('routes');
 
 		routes.map(route => {
-			store.put({onestop_id: route.onestop_id, data: route});
+			store.put(route);
 		});
 	})
 	.catch(err => {
@@ -46,6 +46,7 @@ export const getStoredRouteData = (dbPromise) => {
 
 		return index.getAll().then(routes => {
 			console.log('### from idb, routes:', routes);
+			return routes;
 		});
 	});
 };
