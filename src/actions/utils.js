@@ -30,29 +30,30 @@ export const getUserPos = new Promise((resolve) => {
 
 export const routeColorCheck = (routes, dispatch) => new Promise((resolve) => {
 
-// 	const STATIC_COLORS = [
-// 	'00985f',
-// 	'4e5357',
-// 	'6e3217',
-// 	'cf8e00',
-// 	'ff6319',
-// 	'006a84',
-// 	'01af40',
-// 	'0038a5',
-// 	'c60c31',
-// 	'c60c31',
-// 	'01a1df',
-// 	'996533',
-// 	'6bbf43',
-// 	'a8a9ad',
-// 	'808183',
-// 	'fccc0a'
-// ];
+	const STATIC_COLORS = [
+	'#00985f',
+	'#4e5357',
+	'#6e3217',
+	'#cf8e00',
+	'#ff6319',
+	'#006a84',
+	'#01af40',
+	'#0038a5',
+	'#c60c31',
+	'#01a1df',
+	'#996533',
+	'#6bbf43',
+	'#a8a9ad',
+	'#808183',
+	'#fccc0a'
+];
 
-	let randomColors = randomColor({
-		count: routes.length,
-		luminosity: 'dark'
-	});	
+	// let randomColors = randomColor({
+	// 	count: routes.length,
+	// 	luminosity: 'dark'
+	// });	
+
+	let randomColors = STATIC_COLORS;
 
 	routes.forEach((route, i) => {
 		if (!route.color) {
@@ -75,7 +76,7 @@ export const setUpRouteVisuals = (routes) => new Promise((resolve) => {
 			line.forEach((coord) => {
 				latLngs.push(L.latLng(coord[1], coord[0]));
 			});
-			routeLineLayer.addLayer(L.polyline(latLngs, {color: route.color}));
+			routeLineLayer.addLayer(L.polyline(latLngs, {color: route.color, weight: 2}));
 		});
 	});
 
@@ -221,9 +222,7 @@ export const fetchNearbyRoutes = (position, dispatch, operators) => new Promise(
 			}
 		};
 
-		console.log('### found operator?', _checkOperatorList())
-
-		if (routes && _checkOperatorList()) {
+		if (routes.length && _checkOperatorList()) {
 			dispatch({
 				type: RECIEVE_ROUTES,
 				// recievedAt: Date.now(),
