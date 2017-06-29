@@ -17,6 +17,13 @@ const dbPromise = openDb();
 
 const TRANSIT_API_BASE_URL = 'https://transit.land/api/v1/';
 
+// Error handler to check values returned in .then chains
+const handleError = (value, valueName) => {
+	if (!value) {
+		throw new Error(`${valueName} is ${value}.`);
+	}
+};
+
 export const getUserPos = new Promise((resolve) => {
 	let position = {};
 	navigator.geolocation.getCurrentPosition((pos) => {
@@ -30,7 +37,7 @@ export const getUserPos = new Promise((resolve) => {
 
 export const routeColorCheck = (routes, dispatch) => new Promise((resolve) => {
 
-	const STATIC_COLORS = [
+const STATIC_COLORS = [
 	'#00985f',
 	'#4e5357',
 	'#6e3217',
@@ -100,7 +107,9 @@ export const initMap = (routes, dispatch) => {
 
 			// Event handler for map scrolling, fetches nearby routes
 			// of new map center
-			let lastBbox = map.getBounds(); 
+			let lastBbox = map.getBounds();
+
+			// TODO: contain the following in a handleMapScroll function  //////////////////////////////
 			map.on('moveend', (e) => {
 				// Get new map center lat/lng
 				let mapCenter = map.getCenter();
@@ -114,41 +123,45 @@ export const initMap = (routes, dispatch) => {
 					return;
 				} else {
 					// TODO: create updateRoutes function that checks
-					// for new routes info ???????????????????????????????????????
-					
-					findOperatorsInArea(mapBounds).then(operators => {
-						console.log('### operators:', operators)
-						fetchNearbyRoutes(mapCenter, dispatch, operators)
-						.then((routes) => {
-							routeColorCheck(routes)
-							.then((routes) => {
-								dispatch({
-									type: SET_ROUTE_COLORS,
-									payload: routes
-								});
+					// for new routes info ???????????????????????????????????????					
 
-								// Set new bbox
-								lastBbox = map.getBounds();
+					findOperatorsInArea(mapBounds)
+					.then(operators => {
+						handleError(operators, 'operators');
+						return fetchNearbyRoutes(mapCenter, dispatch, operators);
+					})
+					.then(routes => {
+						handleError(routes, 'routes');
+						return routeColorCheck(routes);
+					})
+					.then(routes => {
+						handleError(routes, 'routes');
 
-								return routes;
-							}).then((routes) => {
-								setUpRouteVisuals(routes)
-								.then((routeLineLayer) => {
-									map.addLayer(routeLineLayer);
-								})
-							})
-							.catch((err) => {
-								console.error('_routeColorCheck error:', err)
-							})
-						}).catch((err) => {
-							console.error('_fetchNearbyRoutes error:' , err)
+						dispatch({
+							type: SET_ROUTE_COLORS,
+							payload: routes
 						});
-					}).catch(err => {
-						console.error('_findOperatorsInArea error:', err)
+
+						// Set new bbox
+						lastBbox = map.getBounds();
+
+						return routes;
+					})
+					.then(routes => {
+						handleError(routes, 'routes');
+						return setUpRouteVisuals(routes);
+					})
+					.then(routeLineLayer => {
+						handleError(routeLineLayer, 'routeLineLayer');
+						map.addLayer(routeLineLayer);
+					})
+					.catch(err => {
+						console.error('findOperatorsInArea error:', err);
 					});
-					
+
 				}
-			})
+			});
+			// end handleMapScroll /////////////////////////////////////////////////////////////////////
 			
 			dispatch({ 
 				type: INIT_MAP,

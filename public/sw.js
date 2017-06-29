@@ -4,7 +4,7 @@ const BBOX_BASE_URL = 'https://transit.land/api/v1/routes?bbox=';
 
 const STATIC_SOURCES = [
 	'/',
-	'static/js/bundle.js',
+	'static/js/bundle.js', // BUG! Needs to be changed to main[hash].js in production
 	// 'https://mapzen.com/js/mapzen.js',
 	// 'https://mapzen.com/js/mapzen.css'
 	]
