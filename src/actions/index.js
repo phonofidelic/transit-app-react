@@ -1,20 +1,20 @@
-import axios from 'axios';
+// import axios from 'axios';
 import { 
-	REQUEST_ROUTES,
-	RECIEVE_ROUTES,
+	// REQUEST_ROUTES,
+	// RECIEVE_ROUTES,
 	SET_ROUTE_COLORS,
-	INIT_MAP,
-	MAP_LOADED,
+	// INIT_MAP,
+	// MAP_LOADED,
 	SELECT_ROUTE,
 	FETCH_ROUTES_ERROR,
 	FETCH_STOPS,
-	FOCUS_ROUTE
+	// FOCUS_ROUTE
 } from '../actiontypes';
 import * as utils from './utils';
-import { openDb, populateDb, getStoredRouteData } from '../utils/dbUtils';
+import { openDb, populateDb } from '../utils/dbUtils';
 
-const L = window.L;
-const randomColor = require('randomcolor');
+// const L = window.L;
+// const randomColor = require('randomcolor');
 const dbPromise = openDb();
 
 export const init = () => {

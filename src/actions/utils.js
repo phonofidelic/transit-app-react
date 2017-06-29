@@ -5,14 +5,14 @@ import {
 	SET_ROUTE_COLORS,
 	INIT_MAP,
 	MAP_LOADED,
-	SELECT_ROUTE,
+	// SELECT_ROUTE,
 	FETCH_ROUTES_ERROR,
-	FETCH_STOPS,
-	FOCUS_ROUTE
+	// FETCH_STOPS,
+	// FOCUS_ROUTE
 } from '../actiontypes';
-import { openDb, populateDb, getStoredRouteData } from '../utils/dbUtils';
+import { openDb, getStoredRouteData } from '../utils/dbUtils';
 const L = window.L;
-const randomColor = require('randomcolor');
+// const randomColor = require('randomcolor');
 const dbPromise = openDb();
 
 const TRANSIT_API_BASE_URL = 'https://transit.land/api/v1/';
@@ -71,10 +71,10 @@ export const setUpRouteVisuals = (routes) => new Promise((resolve) => {
 
 	routes.map((route) => {
 		let lines = route.geometry.coordinates;
-		lines.forEach((line, i) => {
+		return lines.forEach((line, i) => {
 			let latLngs = [];
 			line.forEach((coord) => {
-				latLngs.push(L.latLng(coord[1], coord[0]));
+				return latLngs.push(L.latLng(coord[1], coord[0]));
 			});
 			routeLineLayer.addLayer(L.polyline(latLngs, {color: route.color, weight: 2}));
 		});
@@ -208,12 +208,12 @@ export const fetchNearbyRoutes = (position, dispatch, operators) => new Promise(
 		let operator_ids = [];
 		if (operators) {
 			operators.map(operator => {
-				operator_ids.push(operator.onestop_id)
-			})
+				return operator_ids.push(operator.onestop_id);
+			});
 		}
 		
 		const _checkOperatorList = () => {
-			if (operator_ids.indexOf(routes[0].operated_by_onestop_id) == -1) {
+			if (operator_ids.indexOf(routes[0].operated_by_onestop_id) === -1) {
 				console.log('### did not find operator')
 				return false;
 			} else {
@@ -222,10 +222,11 @@ export const fetchNearbyRoutes = (position, dispatch, operators) => new Promise(
 			}
 		};
 
+		// Check if routes were found in cache and if there is a new operator
+		// in the operator list
 		if (routes.length && _checkOperatorList()) {
 			dispatch({
 				type: RECIEVE_ROUTES,
-				// recievedAt: Date.now(),
 				payload: routes
 			});
 
@@ -235,7 +236,6 @@ export const fetchNearbyRoutes = (position, dispatch, operators) => new Promise(
 			let perPage = `per_page=${ROUTES_LENGTH}`;
 			axios.get(`${TRANSIT_API_BASE_URL}routes?bbox=${sw.lng},${sw.lat},${ne.lng},${ne.lat}&${perPage}`)
 			.then((response) => {
-				// console.log('@fetchNearbyRoutes response:', response);					
 				
 				let routes = response.data.routes;
 

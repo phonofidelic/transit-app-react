@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import Header from './components/Header';
 import MapComponent from './components/Map';
-import RouteList from './components/RouteList';
+import RouteList from './containers/RouteList';
 import './App.css';
 
 class App extends Component {

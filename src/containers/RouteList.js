@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import * as actions from '../actions';
-import RouteListItem from './RouteListItem';
-import RoutesData from './RoutesData';
+import RouteListItem from '../components/RouteListItem';
+// import RoutesData from './RoutesData';
 
 export class RouteList extends Component {
 
@@ -12,11 +12,25 @@ export class RouteList extends Component {
 		this.props.init();
 	}
 
+	// componentDidMount() {
+	// 	window.addEventListener('scroll', this.handleScroll);
+	// }
+
+	handleScroll() {
+		const windowTop = window.pageYOffset;
+
+		if (windowTop > 0) {
+			console.log('windowTop:', windowTop);	
+		}
+		
+	}
+
 	renderList(error) {
 		return (
 			<ul>
-				{this.props.routes.map((route) => {
+				{this.props.routes.map((route, i) => {
 					return <RouteListItem key={route.onestop_id}
+																index={i}
 																onestopId={route.onestop_id}
 																name={route.name}
 																longName={route.tags.route_long_name}
@@ -26,7 +40,7 @@ export class RouteList extends Component {
 																route={route}
 																className="route-list-item" />
 				})}
-			</ul>			
+			</ul>
 		);
 	}
 
@@ -37,9 +51,9 @@ export class RouteList extends Component {
 	}
 
 	render() {
-		const { isFetching, error, mapLoaded, routes } = this.props;
+		const { isFetching, error, routes } = this.props;
 		return (
-			<div>
+			<div className="route-list">
 				{isFetching && routes.length === 0 && <div>loading...</div>}
 				{routes && this.renderList()}
 				{error && this.renderError(error)}

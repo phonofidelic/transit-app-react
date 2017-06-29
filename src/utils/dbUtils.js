@@ -4,7 +4,7 @@ const idb = require('idb');
 const IDB_VERSION = 1;
 
 export const openDb = () => {
-	if(!'serviceWorker' in navigator) {
+	if(!('serviceWorker' in navigator)) {
 		return Promise.resolve();
 	}
 
@@ -29,7 +29,7 @@ export const populateDb = (dbPromise, routes) => {
 		const store = tx.objectStore('routes');
 
 		routes.map(route => {
-			store.put(route);
+			return store.put(route);
 		});
 	})
 	.catch(err => {

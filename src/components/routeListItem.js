@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import  * as actions from '../actions';
-import StopList from './StopList';
+// import StopList from './StopList';
 
 class RouteListItem extends Component {
 
@@ -18,13 +18,15 @@ class RouteListItem extends Component {
 
 	render() {
 		const { selected } = this.props
+
+
 		return (
 			<li className="route-list-item" 
 					style={{backgroundColor: this.props.color}}
 					onClick={() => {this.props.selectRoute(this.props.routes, this.props.onestopId)}}
 					>
 				<div className="route-list-item-header">
-					{this.props.name} - {this.props.longName}
+					{this.props.name} - {this.props.longName} {this.props.index === 0 ? ' - first' : null}
 					
 				</div>
 				{selected ? this.renderStops() : null}
