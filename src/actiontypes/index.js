@@ -13,4 +13,6 @@ export const GET_USER_POS = 'get_user_pos',
 
 						 IS_SELECTED = 'is_selected',
 
-						 FETCH_STOPS = 'fetch_stops';
+						 FETCH_STOPS = 'fetch_stops',
+
+						 SHOW_TRIP_PLANNER = 'show_trip_planner';

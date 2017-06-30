@@ -6,6 +6,7 @@ import reduxThunk from 'redux-thunk';
 import rootReducer from './reducers';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
+import injectTapEventPlugin from 'react-tap-event-plugin';
 import App from './App';
 import './index.css';
 
@@ -28,11 +29,13 @@ const store = createStoreWithMiddleware(rootReducer, inspector);
 
 // let store = createStore(rootReducer)
 
+// Material ui setup
 const muiTheme = getMuiTheme({
 	palette: {
 		primary1Color: '#757575'
 	}
-})
+});
+injectTapEventPlugin();
 
 render(
 	<Provider store={store}>

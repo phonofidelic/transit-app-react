@@ -8,7 +8,8 @@ import {
 	SELECT_ROUTE,
 	FETCH_ROUTES_ERROR,
 	FETCH_STOPS,
-	// FOCUS_ROUTE
+	// FOCUS_ROUTE,
+	SHOW_TRIP_PLANNER
 } from '../actiontypes';
 import * as utils from './utils';
 import { openDb, populateDb } from '../utils/dbUtils';
@@ -100,3 +101,13 @@ export const updateMap = (map, routes) => {
 export const renderRouteLines = () => {
 
 }
+
+export const openTripPlanner = () => {
+	console.log('@openTripPlanner called')
+	return dispatch => {
+		dispatch({
+			type: SHOW_TRIP_PLANNER
+		});
+	}
+}
+
