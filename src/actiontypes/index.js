@@ -15,4 +15,7 @@ export const GET_USER_POS = 'get_user_pos',
 
 						 FETCH_STOPS = 'fetch_stops',
 
-						 SHOW_TRIP_PLANNER = 'show_trip_planner';
+						 SHOW_TRIP_PLANNER = 'show_trip_planner',
+						 DESTINATION_INPUT_CHANGE = 'destination_input_change',
+						 DESTINATION_SEARCH = 'destination_search',
+						 RECEIVE_AUTOCOMPLETE_RESULTS = 'receive_autocomplete_results';

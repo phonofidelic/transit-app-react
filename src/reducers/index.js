@@ -1,12 +1,12 @@
 import { combineReducers } from 'redux';
-import userReducer from './userReducer';
+import locationReducer from './locationReducer';
 import routeListReducer from './routeListReducer';
 import mapReducer from './mapReducer';
 import stopListReducer from './stopListReducer';
 import tripPlannerReducer from './tripPlannerReducer';
 
 const rootReducer = combineReducers({
-	userReducer,
+	locationReducer,
 	routeListReducer,
 	mapReducer,
 	stopListReducer,

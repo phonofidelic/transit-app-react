@@ -1,5 +1,7 @@
-// import axios from 'axios';
+import axios from 'axios';
+import _ from 'lodash';
 import { 
+	GET_USER_POS,
 	// REQUEST_ROUTES,
 	// RECIEVE_ROUTES,
 	SET_ROUTE_COLORS,
@@ -9,7 +11,10 @@ import {
 	FETCH_ROUTES_ERROR,
 	FETCH_STOPS,
 	// FOCUS_ROUTE,
-	SHOW_TRIP_PLANNER
+	SHOW_TRIP_PLANNER,
+	DESTINATION_INPUT_CHANGE,
+	DESTINATION_SEARCH,
+	RECEIVE_AUTOCOMPLETE_RESULTS
 } from '../actiontypes';
 import * as utils from './utils';
 import { openDb, populateDb } from '../utils/dbUtils';
@@ -23,6 +28,11 @@ export const init = () => {
 	// openDb();
 	return (dispatch) => {
 		utils.getUserPos.then((userPos) => {
+
+		dispatch({
+			type: GET_USER_POS,
+			payload: userPos
+		});
 
 		utils.fetchNearbyRoutes(userPos, dispatch)
 			.then((routes) => {
@@ -107,6 +117,39 @@ export const openTripPlanner = () => {
 	return dispatch => {
 		dispatch({
 			type: SHOW_TRIP_PLANNER
+		});
+	}
+}
+
+export const handleDestInputChange = (input, userPos) => {
+	return dispatch => {
+		if (input.length) {
+
+			utils.fetchMapzenAutocomplete(input, userPos)
+			.then(places => {
+				console.log('@handleDestInputChange, places:', places)
+				dispatch({
+					type: RECEIVE_AUTOCOMPLETE_RESULTS,
+					payload: places
+				});
+			});
+		
+			dispatch({
+				type: DESTINATION_INPUT_CHANGE,
+				payload: input
+			});
+		}
+	}
+};
+
+export const destinationSearch = (searchParam, userPos) => {
+	console.log('@destinationSearch, searchParame:', searchParam);
+
+	utils.mapzenLocationSearch(searchParam, userPos)
+
+	return dispatch => {
+		dispatch({
+			type: DESTINATION_SEARCH
 		});
 	}
 }

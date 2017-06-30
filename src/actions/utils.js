@@ -1,5 +1,7 @@
 import axios from 'axios';
+import _ from 'lodash';
 import { 
+	// GET_USER_POS,
 	REQUEST_ROUTES,
 	RECIEVE_ROUTES,
 	SET_ROUTE_COLORS,
@@ -16,6 +18,7 @@ const L = window.L;
 const dbPromise = openDb();
 
 const TRANSIT_API_BASE_URL = 'https://transit.land/api/v1/';
+const MAPZEN_SEARCH_API_KEY = 'search-3LVgAzp' // TODO: move to environment varialble
 
 // Error handler to check values returned in .then chains
 const handleError = (value, valueName) => {
@@ -288,3 +291,32 @@ export const findOperatorsInArea = (mapBounds) => new Promise(resolve => {
 		console.error('@_findOperatorsInArea error:', err);
 	});
 });
+
+export const mapzenLocationSearch = (searchParam, userPos) => new Promise(resolve => {
+	const mapzenSearchRequest = `https://search.mapzen.com/v1/search?api_key=${MAPZEN_SEARCH_API_KEY}&text=${searchParam}&focus.point.lat=${userPos.lat}&focus.point.lon=${userPos.lng}`;
+
+	 console.log('###', mapzenSearchRequest)
+
+	axios.get(mapzenSearchRequest)
+	.then(response => {
+		console.log('@mapzenLocationSearch, response:', response);
+		// resolve(response.data)
+	})
+	.catch(err => {
+		console.error('mapzenLocationSearch error:', err);
+	});
+});
+
+export const fetchMapzenAutocomplete = (input, userPos) => new Promise(_.throttle((resolve) => {
+	const mapzenAutocompleteReq = `https://search.mapzen.com/v1/autocomplete?api_key=${MAPZEN_SEARCH_API_KEY}&sources=openaddresses&text=${input}&focus.point.lat=${userPos.lat}&focus.point.lon=${userPos.lng}`;
+	axios.get(mapzenAutocompleteReq).then(response => {
+		console.log(response)
+
+		let names = [];
+		response.data.features.map(item => {
+			names.push(item.properties.label);
+		});
+		resolve(names);
+	});
+}), 500);
+

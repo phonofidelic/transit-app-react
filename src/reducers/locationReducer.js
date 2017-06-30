@@ -2,7 +2,7 @@ import { GET_USER_POS } from '../actiontypes';
 
 const INITIAL_STATE = {userPos: null};
 
-const userReducer = (state = INITIAL_STATE, action) => {
+const locationReducer = (state = INITIAL_STATE, action) => {
 	switch (action.type) {
 		case GET_USER_POS:
 			return {
@@ -15,4 +15,4 @@ const userReducer = (state = INITIAL_STATE, action) => {
 	}
 }
 
-export default userReducer;
+export default locationReducer;
