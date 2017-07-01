@@ -6,6 +6,7 @@ import {
 	SET_ROUTE_COLORS,
 	// INIT_MAP,
 	// MAP_LOADED,
+	SET_DEST_MARKER,
 	SELECT_ROUTE,
 	FETCH_ROUTES_ERROR,
 	FETCH_STOPS,
@@ -133,17 +134,19 @@ export const handleDestInputChange = (input, userPos) => {
 	}
 };
 
-export const setDestination = (autocompleteResults, userPos, map) => {
+export const setDestination = (autocompleteResults, userPos, map, destMarker) => {
 	console.log('@setDestination, autocompleteResults:', autocompleteResults);
 
 	const selectedLocation = autocompleteResults[0];
 
-	return dispatch => {
-		dispatch({
-			type: DESTINATION_SEARCH
-		});
-
-		utils.focusMapOnDestination(map, selectedLocation.data.geometry.coordinates)
+	return dispatch => {		
+		utils.focusMapOnDestination(map, selectedLocation.data.geometry.coordinates, destMarker)
+		.then(marker => {
+				dispatch({
+				type: SET_DEST_MARKER,
+				payload: marker
+			});
+		})
 	}
 };
 

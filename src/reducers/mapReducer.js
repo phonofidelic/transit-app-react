@@ -1,6 +1,15 @@
-import { INIT_MAP, MAP_LOADED, UPDATE_MAP_VIEW } from '../actiontypes';
+import { 
+	INIT_MAP, 
+	MAP_LOADED, 
+	UPDATE_MAP_VIEW, 
+	SET_DEST_MARKER } from '../actiontypes';
 
-const INITIAL_STATE = {map: null, mapCenter: null, mapLoaded: false};
+const INITIAL_STATE = {
+	map: null, 
+	mapCenter: null, 
+	mapLoaded: false,
+	destMarker: null
+};
 
 const mapReducer = (state = INITIAL_STATE, action) => {
 	switch (action.type) {
@@ -22,6 +31,12 @@ const mapReducer = (state = INITIAL_STATE, action) => {
 				...state,
 				mapCenter: action.payload
 			};
+
+		case SET_DEST_MARKER:
+			return {
+				...state,
+				destMarker: action.payload
+			}
 
 		default:
 			return state;

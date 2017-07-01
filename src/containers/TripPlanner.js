@@ -34,7 +34,8 @@ class TripPlanner extends Component {
 			destinationInput, 
 			userPos, 
 			autocompleteResults, 
-			map 
+			map,
+			destMarker
 		} = this.props;
 		const dataSourceConfig = {
 			text: 'label',
@@ -48,7 +49,7 @@ class TripPlanner extends Component {
 											dataSourceConfig={dataSourceConfig}
 											autoFocus={true} />
 
-				<FlatButton fullWidth={true} onClick={() => {this.props.setDestination(autocompleteResults, userPos, map)}}>Search</FlatButton>
+				<FlatButton fullWidth={true} onClick={() => {this.props.setDestination(autocompleteResults, userPos, map, destMarker)}}>Search</FlatButton>
 			</div>
 		);
 	};
@@ -71,7 +72,8 @@ const mapStateToProps = state => {
 		showTripPlanner: state.tripPlannerReducer.showTripPlanner,
 		destinationInput: state.tripPlannerReducer.destinationInput,
 		autocompleteResults: state.tripPlannerReducer.autocompleteResults,
-		map: state.mapReducer.map
+		map: state.mapReducer.map,
+		destMarker: state.mapReducer.destMarker
 	}
 };
 

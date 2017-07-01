@@ -7,6 +7,7 @@ import {
 	SET_ROUTE_COLORS,
 	INIT_MAP,
 	MAP_LOADED,
+	SET_DEST_MARKER,
 	// SELECT_ROUTE,
 	FETCH_ROUTES_ERROR,
 	// FETCH_STOPS,
@@ -301,21 +302,6 @@ export const findOperatorsInArea = (mapBounds) => new Promise(resolve => {
 	});
 });
 
-export const mapzenLocationSearch = (searchParam, userPos) => new Promise(resolve => {
-	const mapzenSearchRequest = `https://search.mapzen.com/v1/search?api_key=${MAPZEN_SEARCH_API_KEY}&text=${searchParam}&focus.point.lat=${userPos.lat}&focus.point.lon=${userPos.lng}`;
-
-	 console.log('###', mapzenSearchRequest)
-
-	axios.get(mapzenSearchRequest)
-	.then(response => {
-		console.log('@mapzenLocationSearch, response:', response);
-		// resolve(response.data)
-	})
-	.catch(err => {
-		console.error('mapzenLocationSearch error:', err);
-	});
-});
-
 export const fetchMapzenAutocomplete = (input, userPos) => new Promise(_.throttle((resolve) => {
 	const mapzenAutocompleteReq = `https://search.mapzen.com/v1/autocomplete?api_key=${MAPZEN_SEARCH_API_KEY}&sources=openaddresses&text=${input}&focus.point.lat=${userPos.lat}&focus.point.lon=${userPos.lng}`;
 	axios.get(mapzenAutocompleteReq).then(response => {
@@ -329,9 +315,15 @@ export const fetchMapzenAutocomplete = (input, userPos) => new Promise(_.throttl
 	});
 }), 500);
 
-export const focusMapOnDestination = (map, destCoords) => {
+export const focusMapOnDestination = (map, destCoords, destMarker) => new Promise(resolve => {
+	// If a destination marker exists, remove it from the map before adding the new one
+	if (destMarker) {
+		map.removeLayer(destMarker);
+	}
 	const latlng = L.latLng(destCoords[1], destCoords[0]);
 	const marker = L.marker(latlng).addTo(map);
-	map.setView(latlng, 14);
-};
+	map.setView(latlng, 16);
+
+	resolve(marker);
+});
 
