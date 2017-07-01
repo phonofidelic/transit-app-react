@@ -1,5 +1,6 @@
 import { 
 	SHOW_TRIP_PLANNER,
+	HIDE_TRIP_PLANNER,
  	DESTINATION_INPUT_CHANGE ,
  	RECEIVE_AUTOCOMPLETE_RESULTS
  } from '../actiontypes';
@@ -15,7 +16,13 @@ const tripPlannerReducer = (state = INITIAL_STATE, action) => {
 		case SHOW_TRIP_PLANNER:
 			return {
 				...state,
-				showTripPlanner: !state.showTripPlanner
+				showTripPlanner: true
+			}
+
+		case HIDE_TRIP_PLANNER:
+			return {
+				...state,
+				showTripPlanner: false
 			}
 
 		case DESTINATION_INPUT_CHANGE:

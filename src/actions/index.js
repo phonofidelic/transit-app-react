@@ -1,5 +1,4 @@
 import axios from 'axios';
-import _ from 'lodash';
 import { 
 	GET_USER_POS,
 	// REQUEST_ROUTES,
@@ -104,14 +103,6 @@ export const fetchStops = (route) => {
 	}
 }
 
-export const updateMap = (map, routes) => {
-	console.log('@updateMap map, routes:', map, routes);
-}
-
-export const renderRouteLines = () => {
-
-}
-
 export const openTripPlanner = () => {
 	console.log('@openTripPlanner called')
 	return dispatch => {
@@ -119,18 +110,18 @@ export const openTripPlanner = () => {
 			type: SHOW_TRIP_PLANNER
 		});
 	}
-}
+};
 
 export const handleDestInputChange = (input, userPos) => {
 	return dispatch => {
 		if (input.length) {
 
 			utils.fetchMapzenAutocomplete(input, userPos)
-			.then(places => {
-				console.log('@handleDestInputChange, places:', places)
+			.then(autocompleteResults => {
+				console.log('@handleDestInputChange, autocompleteResults:', autocompleteResults)
 				dispatch({
 					type: RECEIVE_AUTOCOMPLETE_RESULTS,
-					payload: places
+					payload: autocompleteResults
 				});
 			});
 		
@@ -142,15 +133,17 @@ export const handleDestInputChange = (input, userPos) => {
 	}
 };
 
-export const destinationSearch = (searchParam, userPos) => {
-	console.log('@destinationSearch, searchParame:', searchParam);
+export const setDestination = (autocompleteResults, userPos, map) => {
+	console.log('@setDestination, autocompleteResults:', autocompleteResults);
 
-	utils.mapzenLocationSearch(searchParam, userPos)
+	const selectedLocation = autocompleteResults[0];
 
 	return dispatch => {
 		dispatch({
 			type: DESTINATION_SEARCH
 		});
+
+		utils.focusMapOnDestination(map, selectedLocation.data.geometry.coordinates)
 	}
-}
+};
 

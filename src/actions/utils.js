@@ -10,7 +10,9 @@ import {
 	// SELECT_ROUTE,
 	FETCH_ROUTES_ERROR,
 	// FETCH_STOPS,
-	// FOCUS_ROUTE
+	// FOCUS_ROUTE,
+	SHOW_TRIP_PLANNER,
+	HIDE_TRIP_PLANNER
 } from '../actiontypes';
 import { openDb, getStoredRouteData } from '../utils/dbUtils';
 const L = window.L;
@@ -111,6 +113,13 @@ export const initMap = (routes, dispatch) => {
 			// Event handler for map scrolling, fetches nearby routes
 			// of new map center
 			let lastBbox = map.getBounds();
+
+			// Hide trip planner when scrolling map
+			map.on('movestart', (e) => {
+				dispatch({
+					type: HIDE_TRIP_PLANNER
+				});
+			});
 
 			// TODO: contain the following in a handleMapScroll function  //////////////////////////////
 			map.on('moveend', (e) => {
@@ -312,11 +321,17 @@ export const fetchMapzenAutocomplete = (input, userPos) => new Promise(_.throttl
 	axios.get(mapzenAutocompleteReq).then(response => {
 		console.log(response)
 
-		let names = [];
+		let data = [];
 		response.data.features.map(item => {
-			names.push(item.properties.label);
+			data.push({label: item.properties.label, data: item});
 		});
-		resolve(names);
+		resolve(data);
 	});
 }), 500);
+
+export const focusMapOnDestination = (map, destCoords) => {
+	const latlng = L.latLng(destCoords[1], destCoords[0]);
+	const marker = L.marker(latlng).addTo(map);
+	map.setView(latlng, 14);
+};
 

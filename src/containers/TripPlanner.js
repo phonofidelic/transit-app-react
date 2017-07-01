@@ -30,15 +30,25 @@ class TripPlanner extends Component {
 	}
 
 	renderDestinationInput() {
-		const { destinationInput, userPos, autocompleteResults } = this.props;
-
+		const {
+			destinationInput, 
+			userPos, 
+			autocompleteResults, 
+			map 
+		} = this.props;
+		const dataSourceConfig = {
+			text: 'label',
+			value: 'data'
+		}
 		return(
 			<div>
 				<AutoComplete hintText="Where would you like to go?"
 									 		onUpdateInput={this.handleUpdateInput.bind(this)}
-											dataSource={autocompleteResults} />
+											dataSource={autocompleteResults}
+											dataSourceConfig={dataSourceConfig}
+											autoFocus={true} />
 
-				<FlatButton fullWidth={true} onClick={() => {this.props.destinationSearch(destinationInput, userPos)}}>Search</FlatButton>
+				<FlatButton fullWidth={true} onClick={() => {this.props.setDestination(autocompleteResults, userPos, map)}}>Search</FlatButton>
 			</div>
 		);
 	};
@@ -48,8 +58,7 @@ class TripPlanner extends Component {
 		return(
 			<div className="trip-planner-container">
 				<Paper className="trip-planner">
-					<div onClick={() => {this.props.openTripPlanner()}}>Plan a trip</div>
-					{showTripPlanner && this.renderDestinationInput()}
+					{!showTripPlanner ? <div onClick={() => {this.props.openTripPlanner()}}>Plan a trip</div> : this.renderDestinationInput()}
 				</Paper>
 			</div>
 		);
@@ -61,7 +70,8 @@ const mapStateToProps = state => {
 		userPos: state.locationReducer.userPos,
 		showTripPlanner: state.tripPlannerReducer.showTripPlanner,
 		destinationInput: state.tripPlannerReducer.destinationInput,
-		autocompleteResults: state.tripPlannerReducer.autocompleteResults
+		autocompleteResults: state.tripPlannerReducer.autocompleteResults,
+		map: state.mapReducer.map
 	}
 };
 
