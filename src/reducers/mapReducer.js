@@ -2,13 +2,15 @@ import {
 	INIT_MAP, 
 	MAP_LOADED, 
 	UPDATE_MAP_VIEW, 
-	SET_DEST_MARKER } from '../actiontypes';
+	SET_DEST_MARKER,
+	SET_TRIP_LINE } from '../actiontypes';
 
 const INITIAL_STATE = {
 	map: null, 
 	mapCenter: null, 
 	mapLoaded: false,
-	destMarker: null
+	destMarker: null,
+	tripLine: null
 };
 
 const mapReducer = (state = INITIAL_STATE, action) => {
@@ -36,6 +38,12 @@ const mapReducer = (state = INITIAL_STATE, action) => {
 			return {
 				...state,
 				destMarker: action.payload
+			}
+
+		case SET_TRIP_LINE:
+			return {
+				...state,
+				tripLine: action.payload
 			}
 
 		default:

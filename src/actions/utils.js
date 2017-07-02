@@ -22,6 +22,7 @@ const dbPromise = openDb();
 
 const TRANSIT_API_BASE_URL = 'https://transit.land/api/v1/';
 const MAPZEN_SEARCH_API_KEY = 'search-3LVgAzp' // TODO: move to environment varialble
+const MAPZEN_TURNBYTURN_API_KEY = 'valhalla-m9bds2x';	// TODO: move to environment varialble
 
 // Error handler to check values returned in .then chains
 const handleError = (value, valueName) => {
@@ -106,15 +107,12 @@ export const initMap = (routes, dispatch) => {
 			L.Mapzen.apiKey = 'mapzen-bynLHKb';
 			let map = L.Mapzen.map('map', { 
 				scrollWheelZoom: false,
-				scene: L.Mapzen.BasemapStyles.Refill
+				scene: L.Mapzen.BasemapStyles.Refill,
+				controll: false
 			});
-			
+
 			map.setView(position, 12);
-
-			// Event handler for map scrolling, fetches nearby routes
-			// of new map center
-			let lastBbox = map.getBounds();
-
+	
 			// Hide trip planner when scrolling map
 			map.on('movestart', (e) => {
 				dispatch({
@@ -123,6 +121,11 @@ export const initMap = (routes, dispatch) => {
 			});
 
 			// TODO: contain the following in a handleMapScroll function  //////////////////////////////
+
+			// Event handler for map scrolling, fetches nearby routes
+			// of new map center
+			let lastBbox = map.getBounds();
+
 			map.on('moveend', (e) => {
 				// Get new map center lat/lng
 				let mapCenter = map.getCenter();
@@ -326,4 +329,97 @@ export const focusMapOnDestination = (map, destCoords, destMarker) => new Promis
 
 	resolve(marker);
 });
+
+export const mapzenTutnByTurnRequest = (userPos, selectedDestination) => new Promise(resolve => {
+	const locations = [
+		{lat: userPos.lat, lon: userPos.lng},
+		{
+			lat: selectedDestination.data.geometry.coordinates[1], 
+			lon: selectedDestination.data.geometry.coordinates[0],
+			street: selectedDestination.data.properties.street
+		}
+	];
+
+	const costing = 'multimodal';
+	const costing_options = {};
+
+	const requestParams = JSON.stringify({
+		locations: locations,
+		costing:costing
+	}, null);
+
+	// const requestParams = {
+	// 	locations: locations,
+	// 	costing:costing
+	// };
+
+	const request = `https://valhalla.mapzen.com/route?json=${requestParams}&api_key=${MAPZEN_TURNBYTURN_API_KEY}`;
+	console.log('### request:', request)
+
+	axios.get(request).then(response => {
+		console.log('@mapzenTutnByTurnRequest, response:', response)
+		resolve(response);
+	})
+	.catch(err => {
+		console.error('mapzenTutnByTurnRequest error:', err);
+	});
+});
+
+export const decodePolyline = (str, precision) => new Promise(resolve => {
+		const factor = Math.pow(10, precision || 6);
+    let index = 0,
+        lat = 0,
+        lng = 0,
+        coordinates = [],
+        shift = 0,
+        result = 0,
+        byte = null,
+        latitude_change,
+        longitude_change;
+        
+
+    // Coordinates have variable length when encoded, so just keep
+    // track of whether we've hit the end of the string. In each
+    // loop iteration, a single coordinate is decoded.
+    while (index < str.length) {
+
+        // Reset shift, result, and byte
+        byte = null;
+        shift = 0;
+        result = 0;
+
+        do {
+            byte = str.charCodeAt(index++) - 63;
+            result |= (byte & 0x1f) << shift;
+            shift += 5;
+        } while (byte >= 0x20);
+
+        latitude_change = ((result & 1) ? ~(result >> 1) : (result >> 1));
+
+        shift = result = 0;
+
+        do {
+            byte = str.charCodeAt(index++) - 63;
+            result |= (byte & 0x1f) << shift;
+            shift += 5;
+        } while (byte >= 0x20);
+
+        longitude_change = ((result & 1) ? ~(result >> 1) : (result >> 1));
+
+        lat += latitude_change;
+        lng += longitude_change;
+
+        coordinates.push([lat / factor, lng / factor]);
+    }
+    resolve(coordinates);
+});
+
+export const setTripLineToMap = (map, latlngs, tripLine) => new Promise(resolve => {
+	if (tripLine) {
+		map.removeLayer(tripLine);
+	}
+
+	const line = L.polyline(latlngs, {color: 'red'}).addTo(map);
+	resolve(line);
+})
 

@@ -1,9 +1,11 @@
 export const GET_USER_POS = 'get_user_pos',
+						 SET_DESTINATION = 'set_destination',
 
 						 INIT_MAP = 'init_map',
 						 MAP_LOADED = 'map_loaded',
 						 UPDATE_MAP_VIEW = 'update_map_view',
 						 SET_DEST_MARKER = 'set_dest_marker',
+						 SET_TRIP_LINE = 'set_trip_line',
 
 						 REQUEST_ROUTES = 'request_routes',
 						 RECIEVE_ROUTES = 'recieve_routes',
@@ -13,7 +15,6 @@ export const GET_USER_POS = 'get_user_pos',
 						 FOCUS_ROUTE = 'focus_route',
 
 						 IS_SELECTED = 'is_selected',
-
 						 FETCH_STOPS = 'fetch_stops',
 
 						 SHOW_TRIP_PLANNER = 'show_trip_planner',
@@ -21,5 +22,7 @@ export const GET_USER_POS = 'get_user_pos',
 						 DESTINATION_INPUT_CHANGE = 'destination_input_change',
 						 DESTINATION_SEARCH = 'destination_search',
 						 RECEIVE_AUTOCOMPLETE_RESULTS = 'receive_autocomplete_results',
+						 SELECT_DESTINATION = 'select_destination',
+						 RECEIVE_TRIP_DATA = 'receive_trip_data';
 
-						 SET_DESTINATION = 'set_destination';
+						 

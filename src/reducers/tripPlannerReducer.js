@@ -2,13 +2,17 @@ import {
 	SHOW_TRIP_PLANNER,
 	HIDE_TRIP_PLANNER,
  	DESTINATION_INPUT_CHANGE ,
- 	RECEIVE_AUTOCOMPLETE_RESULTS
+ 	RECEIVE_AUTOCOMPLETE_RESULTS,
+ 	SELECT_DESTINATION,
+ 	RECEIVE_TRIP_DATA
  } from '../actiontypes';
 
 const INITIAL_STATE = {
 	showTripPlanner: false,
 	destinationInput: null,
-	autocompleteResults: []
+	autocompleteResults: [],
+	selectedDestination: null,
+	tripData: null
 };
 
 const tripPlannerReducer = (state = INITIAL_STATE, action) => {
@@ -35,6 +39,18 @@ const tripPlannerReducer = (state = INITIAL_STATE, action) => {
 			return {
 				...state,
 				autocompleteResults: action.payload
+			}
+
+		case SELECT_DESTINATION:
+			return {
+				...state,
+				selectedDestination: action.payload
+			}
+
+		case RECEIVE_TRIP_DATA:
+			return {
+				...state,
+				tripData: action.payload
 			}
 
 		default: return state;

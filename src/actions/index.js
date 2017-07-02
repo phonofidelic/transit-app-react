@@ -7,6 +7,7 @@ import {
 	// INIT_MAP,
 	// MAP_LOADED,
 	SET_DEST_MARKER,
+	SET_TRIP_LINE,
 	SELECT_ROUTE,
 	FETCH_ROUTES_ERROR,
 	FETCH_STOPS,
@@ -14,8 +15,9 @@ import {
 	SHOW_TRIP_PLANNER,
 	DESTINATION_INPUT_CHANGE,
 	DESTINATION_SEARCH,
-	RECEIVE_AUTOCOMPLETE_RESULTS
-} from '../actiontypes';
+	RECEIVE_AUTOCOMPLETE_RESULTS,
+	SELECT_DESTINATION,
+	RECEIVE_TRIP_DATA } from '../actiontypes';
 import * as utils from './utils';
 import { openDb, populateDb } from '../utils/dbUtils';
 
@@ -134,19 +136,49 @@ export const handleDestInputChange = (input, userPos) => {
 	}
 };
 
-export const setDestination = (autocompleteResults, userPos, map, destMarker) => {
+export const setDestination = (autocompleteResults, userPos, map, destMarker, tripLine) => {
 	console.log('@setDestination, autocompleteResults:', autocompleteResults);
 
-	const selectedLocation = autocompleteResults[0];
+	const selectedDestination = autocompleteResults[0];
 
-	return dispatch => {		
-		utils.focusMapOnDestination(map, selectedLocation.data.geometry.coordinates, destMarker)
-		.then(marker => {
-				dispatch({
-				type: SET_DEST_MARKER,
-				payload: marker
+	return dispatch => {
+		dispatch({
+			type: SELECT_DESTINATION,
+			payload: selectedDestination
+		});
+
+		// utils.focusMapOnDestination(map, selectedDestination.data.geometry.coordinates, destMarker)
+		// .then(marker => {
+		// 		dispatch({
+		// 		type: SET_DEST_MARKER,
+		// 		payload: marker
+		// 	});
+		// });
+
+		// TODO: move the rest of this to a seperate setTrip function
+		utils.mapzenTutnByTurnRequest(userPos, selectedDestination)
+		.then(response => {
+			dispatch({
+				type: RECEIVE_TRIP_DATA,
+				payload: response.data.trip
+			});
+			return response.data.trip;
+		})
+		.then(trip => {
+			return utils.decodePolyline(trip.legs[0].shape);
+		})
+		.then((latlngs) => {
+			return utils.setTripLineToMap(map, latlngs, tripLine);
+		})
+		.then(tripLine => {
+			dispatch({
+				type: SET_TRIP_LINE,
+				payload: tripLine
 			});
 		})
+		.catch(err => {
+			console.error('setDestination error:', err);
+		});
 	}
 };
 
