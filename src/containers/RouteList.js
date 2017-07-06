@@ -56,7 +56,7 @@ export class RouteList extends Component {
 			<div className="route-list">
 				{isFetching && routes.length === 0 && <div>loading...</div>}
 				{routes && this.renderList()}
-				{error && this.renderError(error)}
+				{error && this.renderError(error.message)}
 			</div>
 		);
 	}

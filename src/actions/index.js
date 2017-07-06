@@ -1,11 +1,11 @@
 import axios from 'axios';
 import { 
 	GET_USER_POS,
-	// REQUEST_ROUTES,
-	// RECIEVE_ROUTES,
+	REQUEST_ROUTES,
+	RECIEVE_ROUTES,
 	SET_ROUTE_COLORS,
-	// INIT_MAP,
-	// MAP_LOADED,
+	INIT_MAP,
+	MAP_LOADED,
 	SET_DEST_MARKER,
 	SET_TRIP_LINE,
 	SELECT_ROUTE,
@@ -21,57 +21,53 @@ import {
 import * as utils from './utils';
 import { openDb, populateDb } from '../utils/dbUtils';
 
-// const L = window.L;
-// const randomColor = require('randomcolor');
 const dbPromise = openDb();
 
 export const init = () => {
-	console.log('@init is called');
-	// openDb();
-	return (dispatch) => {
-		utils.getUserPos.then((userPos) => {
+	return dispatch => {
+		utils.getUserPos.then(userPos => {
+			dispatch({
+				type: GET_USER_POS,
+				payload: userPos
+			});
 
-		dispatch({
-			type: GET_USER_POS,
-			payload: userPos
-		});
-
-		utils.fetchNearbyRoutes(userPos, dispatch)
-			.then((routes) => {
-				utils.routeColorCheck(routes).then((routes) => {
-
-					dispatch({
-						type: SET_ROUTE_COLORS,
-						payload: routes
-					});
-
-					return routes
-				})
-				.then((routes) => {
-					utils.initMap(routes, dispatch);
-
-					// Save routes data to idb
-					populateDb(dbPromise, routes);
-				})
-				.catch((err) => {
-					console.log('_routeColorCheck error:', err);
-					// TODO: add error handler
-				})
-			})			
-			.catch((err) => {
-				console.error('Transitland fetch error:', err);
-				
+			return userPos;
+		})
+		.then(userPos => {
+			dispatch({
+				type: REQUEST_ROUTES
+			});
+			return utils.fetchNearbyRoutes(userPos);	
+		})
+		.then(routes => {			
+			return utils.routeColorCheck(routes);
+		})
+		.then(routes => {
+			dispatch({
+				type: RECIEVE_ROUTES,
+				payload: routes
+			});
+			return utils.setUpRouteVisuals(routes);
+		})
+		.then(routeLineLayer  => {
+			//  Init map here
+			return utils.initMap(routeLineLayer)
+			.then(map => {
 				dispatch({
-					type: FETCH_ROUTES_ERROR,
-					payload: 'Sorry, could not retrieve route info at this time. \nPlease try again later.'
+					type: MAP_LOADED,
+					payload: map
 				});
 			});
 		})
-		.catch((err) => {
-			console.error('_getUserPos error:', err);
+		.catch(err => {
+			console.error('init error:', err);
+			dispatch({
+				type: FETCH_ROUTES_ERROR, // TODO: create generic error handler?
+				payload: err.message // TODO: err.message?
+			});
 		});
 	}
-}
+};
 
 export const selectRoute = (routes, id) => {
 	console.log('@selectRoute:', id, routes);
@@ -147,13 +143,13 @@ export const setDestination = (autocompleteResults, userPos, map, destMarker, tr
 			payload: selectedDestination
 		});
 
-		// utils.focusMapOnDestination(map, selectedDestination.data.geometry.coordinates, destMarker)
-		// .then(marker => {
-		// 		dispatch({
-		// 		type: SET_DEST_MARKER,
-		// 		payload: marker
-		// 	});
-		// });
+		utils.focusMapOnDestination(map, selectedDestination.data.geometry.coordinates, destMarker)
+		.then(marker => {
+				dispatch({
+				type: SET_DEST_MARKER,
+				payload: marker
+			});
+		});
 
 		// TODO: move the rest of this to a seperate setTrip function
 		utils.mapzenTutnByTurnRequest(userPos, selectedDestination)

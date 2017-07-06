@@ -25,7 +25,8 @@ const mapReducer = (state = INITIAL_STATE, action) => {
 		case MAP_LOADED:
 			return {
 				...state,
-				mapLoaded: true
+				mapLoaded: true,
+				map: action.payload
 			}
 
 		case UPDATE_MAP_VIEW:

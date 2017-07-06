@@ -10,7 +10,17 @@ const locationReducer = (state = INITIAL_STATE, action) => {
 		case GET_USER_POS:
 			return {
 				...state,
-				userPos: action.payload
+				userPos: action.payload,
+				uerBbox: {
+					ne: {
+						lat: action.payload.lat,
+						lng: action.payload.lng
+					},
+					sw: {
+						lat: action.payload.lat,
+						lng: action.payload.lng
+					}
+				} 
 			};
 
 		case SET_DESTINATION:

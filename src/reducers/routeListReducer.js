@@ -23,7 +23,6 @@ const routeListReducer = (state = INITIAL_STATE, action) => {
 		case RECIEVE_ROUTES:
 			return {
 				...state,
-				// isFetching: false,
 				routes: action.payload,
 				lastUpdated: action.recievedAt
 			}
@@ -31,7 +30,7 @@ const routeListReducer = (state = INITIAL_STATE, action) => {
 		case SET_ROUTE_COLORS:
 			return {
 				...state,
-				colorsSet: true,
+				// colorsSet: true,
 				isFetching:false,
 				routes: action.payload
 			}

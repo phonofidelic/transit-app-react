@@ -15,7 +15,9 @@ import {
 	SHOW_TRIP_PLANNER,
 	HIDE_TRIP_PLANNER
 } from '../actiontypes';
-import { openDb, getStoredRouteData } from '../utils/dbUtils';
+import { openDb } from '../utils/dbUtils';
+import * as dbUtils from '../utils/dbUtils';
+
 const L = window.L;
 // const randomColor = require('randomcolor');
 const dbPromise = openDb();
@@ -23,6 +25,7 @@ const dbPromise = openDb();
 const TRANSIT_API_BASE_URL = 'https://transit.land/api/v1/';
 const MAPZEN_SEARCH_API_KEY = 'search-3LVgAzp' // TODO: move to environment varialble
 const MAPZEN_TURNBYTURN_API_KEY = 'valhalla-m9bds2x';	// TODO: move to environment varialble
+const ROUTES_RETURN_LENGTH = 10;
 
 // Error handler to check values returned in .then chains
 const handleError = (value, valueName) => {
@@ -42,41 +45,76 @@ export const getUserPos = new Promise((resolve) => {
 	});
 });
 
-export const routeColorCheck = (routes, dispatch) => new Promise((resolve) => {
+const handleMapScroll = map => {
+	let mapCenter = map.getCenter();
+	let mapBounds = map.getBounds();
 
-const STATIC_COLORS = [
-	'#00985f',
-	'#4e5357',
-	'#6e3217',
-	'#cf8e00',
-	'#ff6319',
-	'#006a84',
-	'#01af40',
-	'#0038a5',
-	'#c60c31',
-	'#01a1df',
-	'#996533',
-	'#6bbf43',
-	'#a8a9ad',
-	'#808183',
-	'#fccc0a'
-];
+	// Check if mapCenter is inside of last bbox
+	if (mapCenter.lat <= map.lastBbox._northEast.lat && 
+					mapCenter.lng <= map.lastBbox._northEast.lng && 
+					mapCenter.lat >= map.lastBbox._southWest.lat &&
+					mapCenter.lng >= map.lastBbox._southWest.lng) {
+				return;
+	} else {
+		// TODO: create updateRoutes function that checks
+		// for new routes info ???????????????????????????????????????					
 
-	// let randomColors = randomColor({
-	// 	count: routes.length,
-	// 	luminosity: 'dark'
-	// });	
+		findOperatorsInArea(mapBounds)
+		.then(operators => {
+			handleError(operators, 'operators');
+			return fetchNearbyRoutes(mapCenter, operators);
+		})
+		.then(routes => {
+			handleError(routes, 'routes');
 
+			// Set new bbox after new routes are returned
+			map.lastBbox = map.getBounds();
+
+			return routeColorCheck(routes);
+		})
+		.then(colorCodedRoutes => {
+			handleError(colorCodedRoutes, 'colorCodedRoutes');
+			return setUpRouteVisuals(colorCodedRoutes);
+		})
+		.then(routeLineLayer => {
+			handleError(routeLineLayer, 'routeLineLayer');
+			map.addLayer(routeLineLayer);
+		})
+		.catch(err => {
+			console.error('findOperatorsInArea error:', err);
+		});
+	}
+};
+
+export const routeColorCheck = routes => new Promise(resolve => {
+	// An array of static colors
+	const STATIC_COLORS = [
+		'#00985f',
+		'#4e5357',
+		'#6e3217',
+		'#cf8e00',
+		'#ff6319',
+		'#006a84',
+		'#01af40',
+		'#0038a5',
+		'#c60c31',
+		'#01a1df',
+		'#996533',
+		'#6bbf43',
+		'#a8a9ad',
+		'#808183',
+		'#fccc0a'
+	];
+
+	// Coppy of the static colors array
 	let randomColors = STATIC_COLORS;
 
 	routes.forEach((route, i) => {
 		if (!route.color) {
 			route.color = randomColors[i];
-			// console.log('### route.color:', route.color, i)
-			// randomColors.splice(i, i+1);
 		}
 	});
-	// console.log('@_routeColorCheck, routes:', routes)
+
 	resolve(routes);
 });
 
@@ -90,150 +128,72 @@ export const setUpRouteVisuals = (routes) => new Promise((resolve) => {
 			line.forEach((coord) => {
 				return latLngs.push(L.latLng(coord[1], coord[0]));
 			});
-			routeLineLayer.addLayer(L.polyline(latLngs, {color: route.color, weight: 2}));
+			const routeLine = L.polyline(latLngs, {color: route.color, weight: 2});
+			routeLineLayer.addLayer(routeLine);
 		});
 	});
 
 	resolve(routeLineLayer);
 });
 
-export const initMap = (routes, dispatch) => {
+export const initMap = routeLineLayer => new Promise(resolve => {
+	getUserPos.then(userPos => {
+		let initialMapCenter = [];
+		initialMapCenter.push(userPos.lat, userPos.lng);
 
-	console.log('@_initMap is called');
-		let position = [];
-		getUserPos.then((userPos) => {
-			position.push(userPos.lat, userPos.lng);
-
-			L.Mapzen.apiKey = 'mapzen-bynLHKb';
-			let map = L.Mapzen.map('map', { 
-				scrollWheelZoom: false,
-				scene: L.Mapzen.BasemapStyles.Refill,
-				controll: false
-			});
-
-			map.setView(position, 12);
-	
-			// Hide trip planner when scrolling map
-			map.on('movestart', (e) => {
-				dispatch({
-					type: HIDE_TRIP_PLANNER
-				});
-			});
-
-			// TODO: contain the following in a handleMapScroll function  //////////////////////////////
-
-			// Event handler for map scrolling, fetches nearby routes
-			// of new map center
-			let lastBbox = map.getBounds();
-
-			map.on('moveend', (e) => {
-				// Get new map center lat/lng
-				let mapCenter = map.getCenter();
-				let mapBounds = map.getBounds();
-
-				// Check if mapCenter is inside of last bbox
-				if (mapCenter.lat <= lastBbox._northEast.lat && 
-						mapCenter.lng <= lastBbox._northEast.lng && 
-						mapCenter.lat >= lastBbox._southWest.lat &&
-						mapCenter.lng >= lastBbox._southWest.lng) {
-					return;
-				} else {
-					// TODO: create updateRoutes function that checks
-					// for new routes info ???????????????????????????????????????					
-
-					findOperatorsInArea(mapBounds)
-					.then(operators => {
-						handleError(operators, 'operators');
-						return fetchNearbyRoutes(mapCenter, dispatch, operators);
-					})
-					.then(routes => {
-						handleError(routes, 'routes');
-						return routeColorCheck(routes);
-					})
-					.then(routes => {
-						handleError(routes, 'routes');
-
-						dispatch({
-							type: SET_ROUTE_COLORS,
-							payload: routes
-						});
-
-						// Set new bbox
-						lastBbox = map.getBounds();
-
-						return routes;
-					})
-					.then(routes => {
-						handleError(routes, 'routes');
-						return setUpRouteVisuals(routes);
-					})
-					.then(routeLineLayer => {
-						handleError(routeLineLayer, 'routeLineLayer');
-						map.addLayer(routeLineLayer);
-					})
-					.catch(err => {
-						console.error('findOperatorsInArea error:', err);
-					});
-
-				}
-			});
-			// end handleMapScroll /////////////////////////////////////////////////////////////////////
-			
-			dispatch({ 
-				type: INIT_MAP,
-				payload: map
-			});
-			
-			return { map: map, routes: routes };
-		})
-		.then(({map, routes}) => {
-			// console.log('@_initMap \nmap:', map, 'routes:', routes);
-
-
-			const marker = L.circleMarker(position);
-			marker.addTo(map);
-
-			setUpRouteVisuals(routes)
-			.then((routeLineLayer) => {
-				map.addLayer(routeLineLayer);
-			})
-
-			dispatch({
-				type: MAP_LOADED
-			});
-		})
-		.catch((err) => {
-			console.error('_initMap error:', err);
-			// TODO: add handler
+		return initialMapCenter;
+	})
+	.then(mapCenter => {
+		L.Mapzen.apiKey = 'mapzen-bynLHKb';
+		let map = L.Mapzen.map('map', {
+			scrollWheelZoom: false,
+			scene: L.Mapzen.BasemapStyles.Refill,
+			zoomControl: false
 		});
-}
 
-export const updateNearbyRoutes = (mapCenter, dispatch) => {
+		L.circleMarker(mapCenter).addTo(map);	// TODO: refactor to dynamically render on user position changes
 
-}
+		routeLineLayer.addTo(map);
 
-export const fetchNearbyRoutes = (position, dispatch, operators) => new Promise((resolve) => {
-	console.log('@fetchNearbyRoutes is called', position, 'operators:', operators);
+		map.setView(mapCenter, 12);
 
-	// Set up request data
-	const ROUTES_LENGTH = 10
-	let sw = {};
-	let ne = {};
-	sw.lat = position.lat + 0.5;
-	sw.lng = position.lng - 0.5;
-	ne.lat = position.lat - 0.5;
-	ne.lng = position.lng + 0.5;
+		map.lastBbox = map.getBounds();
 
-	dispatch({
-		type: REQUEST_ROUTES,
-		payload: position
+		// Add event listeners
+		map.on('movestart', e => {
+
+		});
+
+		map.on('moveend', e => {
+			handleMapScroll(map);
+		});
+
+		resolve(map);
+	})
+	.catch(err => {
+		console.error('initMap error:', err);
 	});
+});
 
-	getStoredRouteData(dbPromise).then(routes => {
-		console.log('@getStoredRouteData, routes:', routes, '@getStoredRouteData, operators:', operators);
-		// TODO: Check if routes in idb are relevant to map location !!!!!!!!!!!!!!!!!!!!!!!!
-		// for route in routes, if route.operated_by_onestop_id is found in operators[i].onestop_id
+export const fetchNearbyOperators = (userPos) => new Promise((resolve) => {
+	axios.get(`${TRANSIT_API_BASE_URL}operators?lon=${userPos.lng}&lat=${userPos.lat}&r=5000`)
+	.then(response => {
 		
+		resolve(response.data.operators);
+	})
+	.catch(err => {
+		console.error('fetchNearbyOperators error:', err);
+	});
+});
+
+export const fetchNearbyRoutes = (userPos, operators) => new Promise(resolve => {
+	// Helper function for when fetchNearbyRoutes is called 
+	// to update routes data. _checkOperatorList creates an 
+	// array of operator ids and checks the first route item 
+	// for a matching operator id. If one is found, the map is
+	// focused on the same area and there is no need to fetch 
+	// new routes data. 
+	const _checkOperatorList = (routes) => {
 		let operator_ids = [];
 		if (operators) {
 			operators.map(operator => {
@@ -241,55 +201,52 @@ export const fetchNearbyRoutes = (position, dispatch, operators) => new Promise(
 			});
 		}
 		
-		const _checkOperatorList = () => {
-			if (operator_ids.indexOf(routes[0].operated_by_onestop_id) === -1) {
-				console.log('### did not find operator')
-				return false;
-			} else {
-				console.log('### found operator')
-				return true;
-			}
-		};
+		if (operator_ids.indexOf(routes[0].operated_by_onestop_id) === -1) {
+			console.log('### did not find operator')
+			return false;
+		} else {
+			console.log('### found operator')
+			return true;
+		}
+	};
 
-		// Check if routes were found in cache and if there is a new operator
-		// in the operator list
-		if (routes.length && _checkOperatorList()) {
-			dispatch({
-				type: RECIEVE_ROUTES,
-				payload: routes
-			});
+	// Set up bbox for Transitland routes request
+	let box = {
+		ne: {
+			lat: userPos.lat - 0.5,
+			lng: userPos.lng + 0.5
+		},
+		sw: {
+			lat: userPos.lat + 0.5,
+			lng: userPos.lng - 0.5
+		}
+	};
 
+	// Check idb for stored route data before making a request to network
+	dbUtils.getStoredRouteData(dbPromise).then(routes => {
+		// If routes are returned from getStoredRouteData and there
+		// is no need to fetch new routes data, resolve with routes
+		// data that is stored in idb.
+		if (routes.length && _checkOperatorList(routes)) {
 			resolve(routes);
 		} else {
-			// Fetch routes from network
-			let perPage = `per_page=${ROUTES_LENGTH}`;
-			axios.get(`${TRANSIT_API_BASE_URL}routes?bbox=${sw.lng},${sw.lat},${ne.lng},${ne.lat}&${perPage}`)
-			.then((response) => {
-				
+			// Fetch routes form network and store them in idb
+			axios.get(`${TRANSIT_API_BASE_URL}routes?bbox=${box.sw.lng},${box.sw.lat},${box.ne.lng},${box.ne.lat}&per_page=${ROUTES_RETURN_LENGTH}`)
+			.then(response => {
 				let routes = response.data.routes;
 
 				// Create a deselected state for each route
-				routes.forEach((route) => route.selected = false);
-
-				dispatch({
-					type: RECIEVE_ROUTES,
-					recievedAt: Date.now(),
-					payload: routes
+				routes.forEach(route => {
+					route.selected = false;
 				});
 
-				console.log('@_fetchNearbyRoutes, routes:', routes)
 				resolve(routes);
 			})
-			.catch((err) => {
-				console.error('Transitland fetch error:', err);
-				
-				dispatch({
-					type: FETCH_ROUTES_ERROR,
-					payload: 'Sorry, could not retrieve route info at this time. \nPlease try again later.'
-				});
-			});			
+			.catch(err => {
+				new Error('Sorry, could not retrieve route info at this time. \nPlease try again later.');
+			});
 		}
-	});
+	})
 });
 
 export const findOperatorsInArea = (mapBounds) => new Promise(resolve => {
@@ -419,7 +376,7 @@ export const setTripLineToMap = (map, latlngs, tripLine) => new Promise(resolve 
 		map.removeLayer(tripLine);
 	}
 
-	const line = L.polyline(latlngs, {color: 'red'}).addTo(map);
+	const line = L.polyline(latlngs, {color: 'red', weight: 4, dashArray: [5, 10]}).addTo(map);
 	resolve(line);
 })
 
