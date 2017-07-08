@@ -8,6 +8,8 @@ import {
 	MAP_LOADED,
 	SET_DEST_MARKER,
 	SET_TRIP_LINE,
+	ZOOM_IN,
+	ZOOM_OUT,
 	MAP_ERROR,
 	SELECT_ROUTE,
 	FETCH_ROUTES_ERROR,
@@ -190,4 +192,24 @@ export const setDestination = (autocompleteResults, userPos, map, destMarker, tr
 		});
 	}
 };
+
+export const handleZoomIn = map => {
+	console.log('zoom in');
+	map.zoomIn();
+	return dispatch => {
+		{
+			type: ZOOM_IN
+		}
+	} 
+}
+
+export const handleZoomOut = map => {
+	console.log('zoom out');
+	map.zoomOut();
+	return dispatch => {
+		{
+			type: ZOOM_OUT
+		}
+	} 
+}
 

@@ -45,6 +45,19 @@ li {
 	background: #fff;
 }
 
+.map-controls-container {
+	z-index: 1001;
+	position: fixed;
+	/*width: 100%;*/
+	right: 20px;
+	margin-top: 75vh;
+}
+
+.map-control {
+	display: block;
+	margin-bottom: 10px;
+}
+
 .route-list {
 	margin-top: 90vh;
 	/*top: 80%;*/

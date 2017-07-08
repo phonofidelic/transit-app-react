@@ -6,6 +6,8 @@ export const GET_USER_POS = 'get_user_pos',
 						 UPDATE_MAP_VIEW = 'update_map_view',
 						 SET_DEST_MARKER = 'set_dest_marker',
 						 SET_TRIP_LINE = 'set_trip_line',
+						 ZOOM_IN = 'zoom_in',
+						 ZOOM_OUT = 'zoom_out',
 						 MAP_ERROR = 'map_error',
 
 						 REQUEST_ROUTES = 'request_routes',
