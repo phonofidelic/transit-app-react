@@ -1,27 +1,28 @@
-import axios from 'axios';
+// import axios from 'axios';
 import { 
 	GET_USER_POS,
 	REQUEST_ROUTES,
 	RECIEVE_ROUTES,
-	SET_ROUTE_COLORS,
+	// SET_ROUTE_COLORS,
 	INIT_MAP,
 	MAP_LOADED,
 	SET_DEST_MARKER,
 	SET_TRIP_LINE,
+	MAP_ERROR,
 	SELECT_ROUTE,
 	FETCH_ROUTES_ERROR,
 	FETCH_STOPS,
 	// FOCUS_ROUTE,
 	SHOW_TRIP_PLANNER,
 	DESTINATION_INPUT_CHANGE,
-	DESTINATION_SEARCH,
+	// DESTINATION_SEARCH,
 	RECEIVE_AUTOCOMPLETE_RESULTS,
 	SELECT_DESTINATION,
 	RECEIVE_TRIP_DATA } from '../actiontypes';
 import * as utils from './utils';
-import { openDb, populateDb } from '../utils/dbUtils';
+// import { openDb, populateDb } from '../utils/dbUtils';
 
-const dbPromise = openDb();
+// const dbPromise = openDb();
 
 export const init = () => {
 	return dispatch => {
@@ -51,11 +52,23 @@ export const init = () => {
 		})
 		.then(routeLineLayer  => {
 			//  Init map here
+			dispatch({
+				type: INIT_MAP
+			});
+
 			return utils.initMap(routeLineLayer)
 			.then(map => {
 				dispatch({
 					type: MAP_LOADED,
 					payload: map
+				});
+			})
+			.catch(err => {
+				console.error('initMap error:', err);
+
+				dispatch({
+					type: MAP_ERROR,
+					payload: 'Sorry, the map could not be loaded at this time.'
 				});
 			});
 		})

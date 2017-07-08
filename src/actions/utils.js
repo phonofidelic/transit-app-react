@@ -1,24 +1,10 @@
 import axios from 'axios';
 import _ from 'lodash';
-import { 
-	// GET_USER_POS,
-	REQUEST_ROUTES,
-	RECIEVE_ROUTES,
-	SET_ROUTE_COLORS,
-	INIT_MAP,
-	MAP_LOADED,
-	SET_DEST_MARKER,
-	// SELECT_ROUTE,
-	FETCH_ROUTES_ERROR,
-	// FETCH_STOPS,
-	// FOCUS_ROUTE,
-	SHOW_TRIP_PLANNER,
-	HIDE_TRIP_PLANNER
-} from '../actiontypes';
 import { openDb } from '../utils/dbUtils';
 import * as dbUtils from '../utils/dbUtils';
 
 const L = window.L;
+// const L = require('leaflet');
 // const randomColor = require('randomcolor');
 const dbPromise = openDb();
 
@@ -147,7 +133,7 @@ export const initMap = routeLineLayer => new Promise(resolve => {
 		L.Mapzen.apiKey = 'mapzen-bynLHKb';
 		let map = L.Mapzen.map('map', {
 			scrollWheelZoom: false,
-			scene: L.Mapzen.BasemapStyles.Refill,
+			tangramOptions: {scene: L.Mapzen.BasemapStyles.Refill},
 			zoomControl: false
 		});
 

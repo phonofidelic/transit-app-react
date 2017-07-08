@@ -3,14 +3,16 @@ import {
 	MAP_LOADED, 
 	UPDATE_MAP_VIEW, 
 	SET_DEST_MARKER,
-	SET_TRIP_LINE } from '../actiontypes';
+	SET_TRIP_LINE,
+	MAP_ERROR } from '../actiontypes';
 
 const INITIAL_STATE = {
 	map: null, 
-	mapCenter: null, 
-	mapLoaded: false,
+	mapCenter: null,
+	mapLoading: false,
 	destMarker: null,
-	tripLine: null
+	tripLine: null,
+	error: null
 };
 
 const mapReducer = (state = INITIAL_STATE, action) => {
@@ -19,13 +21,14 @@ const mapReducer = (state = INITIAL_STATE, action) => {
 		case INIT_MAP: 
 			return {
 				...state,
-				map: action.payload
+				mapLoading: true
+				// map: action.payload				
 			};
 
 		case MAP_LOADED:
 			return {
 				...state,
-				mapLoaded: true,
+				mapLoading: false,
 				map: action.payload
 			}
 
@@ -45,6 +48,13 @@ const mapReducer = (state = INITIAL_STATE, action) => {
 			return {
 				...state,
 				tripLine: action.payload
+			}
+
+		case MAP_ERROR:
+			return {
+				...state,
+				mapLoading: false,
+				error: action.payload
 			}
 
 		default:
