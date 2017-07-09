@@ -42,9 +42,6 @@ const handleMapScroll = map => {
 					mapCenter.lng >= map.lastBbox._southWest.lng) {
 				return;
 	} else {
-		// TODO: create updateRoutes function that checks
-		// for new routes info ???????????????????????????????????????					
-
 		findOperatorsInArea(mapBounds)
 		.then(operators => {
 			handleError(operators, 'operators');
@@ -139,6 +136,7 @@ export const initMap = routeLineLayer => new Promise(resolve => {
 
 		L.circleMarker(mapCenter).addTo(map);	// TODO: refactor to dynamically render on user position changes
 
+		// TODO: move this out of the map initialization
 		routeLineLayer.addTo(map);
 
 		map.setView(mapCenter, 12);
@@ -147,7 +145,7 @@ export const initMap = routeLineLayer => new Promise(resolve => {
 
 		// Add event listeners
 		map.on('movestart', e => {
-
+			// Dispatch HIDE_TRIP_PLANNER
 		});
 
 		map.on('moveend', e => {
@@ -291,11 +289,6 @@ export const mapzenTutnByTurnRequest = (userPos, selectedDestination) => new Pro
 		costing:costing
 	}, null);
 
-	// const requestParams = {
-	// 	locations: locations,
-	// 	costing:costing
-	// };
-
 	const request = `https://valhalla.mapzen.com/route?json=${requestParams}&api_key=${MAPZEN_TURNBYTURN_API_KEY}`;
 	console.log('### request:', request)
 
@@ -357,12 +350,49 @@ export const decodePolyline = (str, precision) => new Promise(resolve => {
     resolve(coordinates);
 });
 
-export const setTripLineToMap = (map, latlngs, tripLine) => new Promise(resolve => {
-	if (tripLine) {
-		map.removeLayer(tripLine);
+export const setTripLineToMap = (map, latlngs, endShapeIndexes, tripLayer) => new Promise(resolve => {
+	if (tripLayer) {
+		map.removeLayer(tripLayer);
 	}
 
-	const line = L.polyline(latlngs, {color: 'red', weight: 4, dashArray: [5, 10]}).addTo(map);
-	resolve(line);
+	let newTripLines = [];
+
+	// endShapeIndexes.forEach((index, i) => {
+	// 	let lineSection = [];
+	// 	lineSection.push(latlngs.splice(i, index))
+	// })
+
+	let latlngIndex = 0;
+	let i = 0;
+	while (latlngIndex < latlngs.length) {
+		newTripLines.push(latlngs.slice(latlngIndex, endShapeIndexes[i]));
+		latlngIndex = endShapeIndexes[i];
+		i+=1;
+	}
+
+	console.log('### newTripLines:', newTripLines);
+
+	let tripLineLayer = L.layerGroup()
+
+	const testColors = [		
+		'#00985f',
+		'#4e5357',
+		'#6e3217',
+		'#cf8e00',
+		'#ff6319',
+		'#006a84',
+		'#01af40',
+	];
+
+	newTripLines.forEach((line, i) => {
+	 	tripLineLayer.addLayer(L.polyline(line, {color: testColors[i]}));
+	});
+
+	tripLineLayer.addTo(map);
+
+	resolve(tripLineLayer);
+
+	// const line = L.polyline(latlngs, {color: 'red', weight: 4, dashArray: [5, 10]}).addTo(map);
+	// resolve(line);
 })
 

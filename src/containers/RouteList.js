@@ -12,19 +12,6 @@ export class RouteList extends Component {
 		this.props.init();
 	}
 
-	// componentDidMount() {
-	// 	window.addEventListener('scroll', this.handleScroll);
-	// }
-
-	handleScroll() {
-		const windowTop = window.pageYOffset;
-
-		if (windowTop > 0) {
-			console.log('windowTop:', windowTop);	
-		}
-		
-	}
-
 	renderList(error) {
 		return (
 			<ul>

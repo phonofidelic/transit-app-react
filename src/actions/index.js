@@ -16,6 +16,7 @@ import {
 	FETCH_STOPS,
 	// FOCUS_ROUTE,
 	SHOW_TRIP_PLANNER,
+	HIDE_TRIP_PLANNER,
 	DESTINATION_INPUT_CHANGE,
 	// DESTINATION_SEARCH,
 	RECEIVE_AUTOCOMPLETE_RESULTS,
@@ -60,6 +61,13 @@ export const init = () => {
 
 			return utils.initMap(routeLineLayer)
 			.then(map => {
+				// Add event listener to map
+				map.on('movestart', e => {
+					dispatch({
+						type: HIDE_TRIP_PLANNER
+					});
+				});
+
 				dispatch({
 					type: MAP_LOADED,
 					payload: map
@@ -147,7 +155,7 @@ export const handleDestInputChange = (input, userPos) => {
 	}
 };
 
-export const setDestination = (autocompleteResults, userPos, map, destMarker, tripLine) => {
+export const setDestination = (autocompleteResults, userPos, map, destMarker, tripLayer) => {
 	console.log('@setDestination, autocompleteResults:', autocompleteResults);
 
 	const selectedDestination = autocompleteResults[0];
@@ -176,15 +184,33 @@ export const setDestination = (autocompleteResults, userPos, map, destMarker, tr
 			return response.data.trip;
 		})
 		.then(trip => {
-			return utils.decodePolyline(trip.legs[0].shape);
+
+			let endShapeIndexes = [];
+
+			trip.legs[0].maneuvers.forEach(maneuver => {
+				if (maneuver.travel_mode === 'transit') {
+					console.log('transit maneuver:', maneuver.end_shape_index);
+					endShapeIndexes.push(maneuver.end_shape_index);
+				}
+			});
+
+			return utils.decodePolyline(trip.legs[0].shape)
+			.then(latlngs => {
+				return {latlngs: latlngs, endShapeIndexes: endShapeIndexes};
+				// return data
+			})
+			.catch(err => {
+				console.error('decodePolyline error:', err);
+			});
 		})
-		.then((latlngs) => {
-			return utils.setTripLineToMap(map, latlngs, tripLine);
+		.then(data => {
+			console.log('### data:', data)
+			return utils.setTripLineToMap(map, data.latlngs, data.endShapeIndexes, tripLayer);
 		})
-		.then(tripLine => {
+		.then(tripLayer => {
 			dispatch({
 				type: SET_TRIP_LINE,
-				payload: tripLine
+				payload: tripLayer
 			});
 		})
 		.catch(err => {
