@@ -38,11 +38,11 @@ export class RouteList extends Component {
 	}
 
 	render() {
-		const { isFetching, error, routes } = this.props;
+		const { isFetching, error, routes, showTripDisplay } = this.props;
 		return (
 			<div className="route-list">
 				{isFetching && routes.length === 0 && <div>loading...</div>}
-				{routes && this.renderList()}
+				{routes && !showTripDisplay ? this.renderList() : null}
 				{error && this.renderError(error.message)}
 			</div>
 		);
@@ -54,7 +54,8 @@ const mapStateToProps = (state) => {
 		routes: state.routeListReducer.routes,
 		isFetching: state.routeListReducer.isFetching,
 		lastUpdated: state.routeListReducer.lastUpdated,
-		error: state.routeListReducer.error
+		error: state.routeListReducer.error,
+		showTripDisplay: state.tripPlannerReducer.showTripDisplay
 	}
 }
 

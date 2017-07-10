@@ -129,26 +129,67 @@ export const init = () => {
 	}
 }
 
+export const init = () => {
+	return dispatch => {
+		utils.getUserPos.then(userPos => {
 
-Promise.all([
-	utils.initMap(userPos)
-	.then(map => {
-		map.on('movestart', e => {
-			dispatch({
-				type: HIDE_TRIP_PLANNER
-			});
+			// dispatch initPam and request outes here?
+			dispatch({ type: INIT_MAP });
+			dispatch({ type: REQUEST_ROUTES });
+
+			Promise.all([
+				utils.initMap(userPos)
+				.then(map => {
+					map.on('movestart', e => {
+						dispatch({
+							type: HIDE_TRIP_PLANNER
+						});
+					})
+				})
+				.catch(err => {
+					console.error('initMap error:', err);
+					dispatch({
+						type: MAP_ERROR,
+						payload: 'Sorry, the map could not be loaded at this time.'
+					});
+				}), 
+				utils.fetchNearbyRoutes(userPos)
+			])
+			.then(values => {
+				const data = {map: values[0], routes: values[1]};
+				return data
+			})
+			// This step updates the ui with color codes as those functions complete
+			.then(data => {
+				console.log('### data:', data);
+
+				utils.routeColorCheck(data.routes)
+				.then(colorCodedRoutes => {
+					utils.setUpRouteVisuals(colorCodedRoutes, data.map)
+					.then(map => {
+						// Set colored routes to map
+						dispatch({
+							type: SET_MAP_ROUTES,
+							payload: map
+						});
+					})
+					.catch(err => {
+						console.error('setUpRouteVisuals error:', err);
+					});
+
+					// Set route colors to route list
+					dispatch({
+						type: SET_ROUTE_COLORS,
+						payload: colorCodedRoutes
+					})
+				})
+				.catch(err => {
+					console.error('routeColorChech error:', err);
+				});
+			})
 		})
-	})
-	.catch(err => {
-		console.error('initMap error:', err);
-		dispatch({
-			type: MAP_ERROR,
-			payload: 'Sorry, the map could not be loaded at this time.'
+		.catch(err => {
+			console.error('getUserPos error:', err);
 		});
-	}), 
-	utils.fetchNearbyRoutes(userPos)
-])
-.then(values => {
-	const data = {map: values[0], routes: values[1]};
-	return data
-})
+	}
+}

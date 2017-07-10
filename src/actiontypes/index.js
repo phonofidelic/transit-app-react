@@ -27,6 +27,8 @@ export const GET_USER_POS = 'get_user_pos',
 						 DESTINATION_SEARCH = 'destination_search',
 						 RECEIVE_AUTOCOMPLETE_RESULTS = 'receive_autocomplete_results',
 						 SELECT_DESTINATION = 'select_destination',
-						 RECEIVE_TRIP_DATA = 'receive_trip_data';
+						 RECEIVE_TRIP_DATA = 'receive_trip_data',
+						 SHOW_TRIP_DISPLAY = 'show_trip_display',
+						 HIDE_TRIP_DISPLAY = 'hide_trip_display';
 
 						 

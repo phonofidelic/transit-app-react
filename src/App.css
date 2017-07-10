@@ -94,6 +94,22 @@ li {
 	color: #000;
 }
 
+.trip-display {
+	background: #eee;
+	z-index: 1001;
+	/*margin-top: 90vh;*/
+}
+
+.trip-desplay-header {
+	height: 50px;
+	line-height: 50px;
+}
+
+.maneuver-item {
+	height: 50px;
+	line-height: 50px;
+}
+
 .map-container {
 	position: fixed;
 	width: 100%;

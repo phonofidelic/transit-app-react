@@ -22,7 +22,9 @@ import {
 	// DESTINATION_SEARCH,
 	RECEIVE_AUTOCOMPLETE_RESULTS,
 	SELECT_DESTINATION,
-	RECEIVE_TRIP_DATA } from '../actiontypes';
+	RECEIVE_TRIP_DATA,
+	SHOW_TRIP_DISPLAY,
+ 	HIDE_TRIP_DISPLAY } from '../actiontypes';
 import * as utils from './utils';
 
 export const init = () => {
@@ -189,7 +191,7 @@ export const setDestination = (autocompleteResults, userPos, map, destMarker, tr
 		.then(response => {
 			dispatch({
 				type: RECEIVE_TRIP_DATA,
-				payload: response.data.trip
+				payload: response.data.trip.legs[0].maneuvers
 			});
 			return response.data.trip;
 		})
@@ -224,12 +226,24 @@ export const setDestination = (autocompleteResults, userPos, map, destMarker, tr
 				type: SET_TRIP_LINE,
 				payload: tripLayer
 			});
+
+			dispatch({
+				type: SHOW_TRIP_DISPLAY
+			});
 		})
 		.catch(err => {
 			console.error('setDestination error:', err);
 		});
 	}
 };
+
+export const hideTripDisplay = () => {
+	return dispatch => {
+		dispatch({
+			type: HIDE_TRIP_DISPLAY
+		});
+	}
+}
 
 export const handleZoomIn = map => {
 	console.log('zoom in');

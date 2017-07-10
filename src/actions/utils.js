@@ -57,11 +57,7 @@ const handleMapScroll = map => {
 		})
 		.then(colorCodedRoutes => {
 			handleError(colorCodedRoutes, 'colorCodedRoutes');
-			return setUpRouteVisuals(colorCodedRoutes);
-		})
-		.then(routeLineLayer => {
-			handleError(routeLineLayer, 'routeLineLayer');
-			map.addLayer(routeLineLayer);
+			return setUpRouteVisuals(colorCodedRoutes, map);
 		})
 		.catch(err => {
 			console.error('findOperatorsInArea error:', err);
