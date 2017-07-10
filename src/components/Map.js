@@ -39,7 +39,7 @@ class MapComponent extends Component {
 		const { mapLoading, map, error } = this.props;
 		return (
 			<div id="map" className="map-container">
-			{ mapLoading && <div style={{marginTop: '200px', zIndex: '1001'}}>loading map...</div> }		
+			{ mapLoading && <div style={{marginTop: '200px'}}>loading map...</div> }		
 			{ error && <div style={{marginTop: '200px'}}>{error}</div>}
 			{ map && this.renderMapControlls() }
 			</div>

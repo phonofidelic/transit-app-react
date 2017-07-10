@@ -1,6 +1,7 @@
 import { 
 	INIT_MAP, 
-	MAP_LOADED, 
+	MAP_LOADED,
+	SET_MAP_ROUTES,
 	UPDATE_MAP_VIEW, 
 	SET_DEST_MARKER,
 	SET_TRIP_LINE,
@@ -32,11 +33,17 @@ const mapReducer = (state = INITIAL_STATE, action) => {
 				map: action.payload
 			}
 
+		case SET_MAP_ROUTES:
+			return {
+				...state,
+				map: action.payload
+			}
+
 		case UPDATE_MAP_VIEW:
 			return {
 				...state,
 				mapCenter: action.payload
-			};
+			}
 
 		case SET_DEST_MARKER:
 			return {

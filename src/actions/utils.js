@@ -101,7 +101,7 @@ export const routeColorCheck = routes => new Promise(resolve => {
 	resolve(routes);
 });
 
-export const setUpRouteVisuals = (routes) => new Promise((resolve) => {
+export const setUpRouteVisuals = (routes, map) => new Promise((resolve) => {
 	let routeLineLayer = L.layerGroup();
 
 	routes.map((route) => {
@@ -116,47 +116,41 @@ export const setUpRouteVisuals = (routes) => new Promise((resolve) => {
 		});
 	});
 
-	resolve(routeLineLayer);
+	routeLineLayer.addTo(map);
+	resolve(map);
 });
 
-export const initMap = routeLineLayer => new Promise(resolve => {
-	getUserPos.then(userPos => {
-		let initialMapCenter = [];
-		initialMapCenter.push(userPos.lat, userPos.lng);
+export const initMap = userPos => new Promise(resolve => {
 
-		return initialMapCenter;
-	})
-	.then(mapCenter => {
-		L.Mapzen.apiKey = 'mapzen-bynLHKb';
-		let map = L.Mapzen.map('map', {
-			scrollWheelZoom: false,
-			tangramOptions: {scene: L.Mapzen.BasemapStyles.Refill},
-			zoomControl: false
-		});
+	const mapCenter = [userPos.lat, userPos.lng];
 
-		L.circleMarker(mapCenter).addTo(map);	// TODO: refactor to dynamically render on user position changes
-
-		// TODO: move this out of the map initialization
-		routeLineLayer.addTo(map);
-
-		map.setView(mapCenter, 12);
-
-		map.lastBbox = map.getBounds();
-
-		// Add event listeners
-		map.on('movestart', e => {
-			// Dispatch HIDE_TRIP_PLANNER
-		});
-
-		map.on('moveend', e => {
-			handleMapScroll(map);
-		});
-
-		resolve(map);
-	})
-	.catch(err => {
-		console.error('initMap error:', err);
+	L.Mapzen.apiKey = 'mapzen-bynLHKb';
+	let map = L.Mapzen.map('map', {
+		scrollWheelZoom: false,
+		tangramOptions: {scene: L.Mapzen.BasemapStyles.Refill},
+		zoomControl: false
 	});
+
+	L.circleMarker(mapCenter).addTo(map);	// TODO: refactor to dynamically render on user position changes
+
+	// TODO: move this out of the map initialization
+	// routeLineLayer.addTo(map);
+
+	map.setView(mapCenter, 12);
+
+	map.lastBbox = map.getBounds();
+
+	// Add event listeners
+	map.on('movestart', e => {
+		// Dispatch HIDE_TRIP_PLANNER
+	});
+
+	map.on('moveend', e => {
+		handleMapScroll(map);
+	});
+
+	resolve(map);
+
 });
 
 export const fetchNearbyOperators = (userPos) => new Promise((resolve) => {
@@ -356,12 +350,6 @@ export const setTripLineToMap = (map, latlngs, endShapeIndexes, tripLayer) => ne
 	}
 
 	let newTripLines = [];
-
-	// endShapeIndexes.forEach((index, i) => {
-	// 	let lineSection = [];
-	// 	lineSection.push(latlngs.splice(i, index))
-	// })
-
 	let latlngIndex = 0;
 	let i = 0;
 	while (latlngIndex < latlngs.length) {

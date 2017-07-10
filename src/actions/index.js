@@ -3,9 +3,10 @@ import {
 	GET_USER_POS,
 	REQUEST_ROUTES,
 	RECIEVE_ROUTES,
-	// SET_ROUTE_COLORS,
+	SET_ROUTE_COLORS,
 	INIT_MAP,
 	MAP_LOADED,
+	SET_MAP_ROUTES,
 	SET_DEST_MARKER,
 	SET_TRIP_LINE,
 	ZOOM_IN,
@@ -23,74 +24,83 @@ import {
 	SELECT_DESTINATION,
 	RECEIVE_TRIP_DATA } from '../actiontypes';
 import * as utils from './utils';
-// import { openDb, populateDb } from '../utils/dbUtils';
-
-// const dbPromise = openDb();
 
 export const init = () => {
 	return dispatch => {
 		utils.getUserPos.then(userPos => {
+
+			// TODO: to many disptches? Combine into one?
 			dispatch({
 				type: GET_USER_POS,
 				payload: userPos
 			});
+			dispatch({ type: INIT_MAP });
+			dispatch({ type: REQUEST_ROUTES });
 
-			return userPos;
-		})
-		.then(userPos => {
-			dispatch({
-				type: REQUEST_ROUTES
-			});
-			return utils.fetchNearbyRoutes(userPos);	
-		})
-		.then(routes => {			
-			return utils.routeColorCheck(routes);
-		})
-		.then(routes => {
-			dispatch({
-				type: RECIEVE_ROUTES,
-				payload: routes
-			});
-			return utils.setUpRouteVisuals(routes);
-		})
-		.then(routeLineLayer  => {
-			//  Init map here
-			dispatch({
-				type: INIT_MAP
-			});
-
-			return utils.initMap(routeLineLayer)
-			.then(map => {
-				// Add event listener to map
-				map.on('movestart', e => {
-					dispatch({
-						type: HIDE_TRIP_PLANNER
+			Promise.all([
+				utils.initMap(userPos)
+				.then(map => {
+					map.on('movestart', e => {
+						dispatch({
+							type: HIDE_TRIP_PLANNER
+						});
 					});
-				});
 
-				dispatch({
-					type: MAP_LOADED,
-					payload: map
+					dispatch({
+						type: MAP_LOADED,
+						payload: map
+					});
+
+					return map;
+				})
+				.catch(err => {
+					console.error('initMap error:', err);
+					dispatch({
+						type: MAP_ERROR,
+						payload: 'Sorry, the map could not be loaded at this time.'
+					});
+				}), 
+				utils.fetchNearbyRoutes(userPos)
+			])
+			.then(values => {
+				console.log('### promiseAll values:', values)
+				const data = {map: values[0], routes: values[1]};
+				return data
+			})
+			// This step updates the ui with color codes as those functions complete
+			.then(data => {
+				console.log('### data:', data);
+
+				utils.routeColorCheck(data.routes)
+				.then(colorCodedRoutes => {
+					utils.setUpRouteVisuals(colorCodedRoutes, data.map)
+					.then(map => {
+						// Set colored routes to map
+						dispatch({
+							type: SET_MAP_ROUTES,
+							payload: map
+						});
+					})
+					.catch(err => {
+						console.error('setUpRouteVisuals error:', err);
+					});
+
+					// Set route colors to route list
+					dispatch({
+						type: SET_ROUTE_COLORS,
+						payload: colorCodedRoutes
+					})
+				})
+				.catch(err => {
+					console.error('routeColorChech error:', err);
 				});
 			})
-			.catch(err => {
-				console.error('initMap error:', err);
-
-				dispatch({
-					type: MAP_ERROR,
-					payload: 'Sorry, the map could not be loaded at this time.'
-				});
-			});
 		})
 		.catch(err => {
-			console.error('init error:', err);
-			dispatch({
-				type: FETCH_ROUTES_ERROR, // TODO: create generic error handler?
-				payload: err.message // TODO: err.message?
-			});
+			console.error('getUserPos error:', err);
 		});
 	}
-};
+}
 
 export const selectRoute = (routes, id) => {
 	console.log('@selectRoute:', id, routes);
@@ -187,6 +197,8 @@ export const setDestination = (autocompleteResults, userPos, map, destMarker, tr
 
 			let endShapeIndexes = [];
 
+			// Find all maneuvers where travel mode is 'transit' and push 
+			// that maneuvers end_shape_index to the endShapeIndexes array
 			trip.legs[0].maneuvers.forEach(maneuver => {
 				if (maneuver.travel_mode === 'transit') {
 					console.log('transit maneuver:', maneuver.end_shape_index);
@@ -196,8 +208,8 @@ export const setDestination = (autocompleteResults, userPos, map, destMarker, tr
 
 			return utils.decodePolyline(trip.legs[0].shape)
 			.then(latlngs => {
+				// Send decoded latlngs and end shape indexes to the next step
 				return {latlngs: latlngs, endShapeIndexes: endShapeIndexes};
-				// return data
 			})
 			.catch(err => {
 				console.error('decodePolyline error:', err);

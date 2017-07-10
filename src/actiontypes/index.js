@@ -3,6 +3,7 @@ export const GET_USER_POS = 'get_user_pos',
 
 						 INIT_MAP = 'init_map',
 						 MAP_LOADED = 'map_loaded',
+						 SET_MAP_ROUTES = 'set_map_routes',
 						 UPDATE_MAP_VIEW = 'update_map_view',
 						 SET_DEST_MARKER = 'set_dest_marker',
 						 SET_TRIP_LINE = 'set_trip_line',
