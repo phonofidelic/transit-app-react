@@ -96,7 +96,7 @@ li {
 
 .trip-display {
 	background: #eee;
-	z-index: 1001;
+	z-index: 1003;
 	/*margin-top: 90vh;*/
 }
 
@@ -106,8 +106,10 @@ li {
 }
 
 .maneuver-item {
-	height: 50px;
-	line-height: 50px;
+	min-height: 50px;
+	/*line-height: 50px;*/
+	text-align: left;
+	padding: 5px;
 }
 
 .map-container {

@@ -228,7 +228,7 @@ export const setDestination = (autocompleteResults, userPos, map, destMarker, tr
 			});
 
 			dispatch({
-				type: SHOW_TRIP_DISPLAY
+				type: SHOW_TRIP_PLANNER
 			});
 		})
 		.catch(err => {
@@ -240,7 +240,15 @@ export const setDestination = (autocompleteResults, userPos, map, destMarker, tr
 export const hideTripDisplay = () => {
 	return dispatch => {
 		dispatch({
-			type: HIDE_TRIP_DISPLAY
+			type: HIDE_TRIP_PLANNER
+		});
+	}
+}
+
+export const showTripDisplay = () => {
+	return dispatch => {
+		dispatch({
+			type: SHOW_TRIP_DISPLAY
 		});
 	}
 }

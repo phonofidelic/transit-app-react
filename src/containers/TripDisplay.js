@@ -10,18 +10,19 @@ class TripDisplay extends Component {
 			<ul>
 				{this.props.maneuvers.map((maneuver, i) => {
 					return <ManeuverItem key={i} 
-															 instruction={maneuver.verbal_pre_transition_instruction}/>
+															 instruction={maneuver.verbal_pre_transition_instruction}
+															 travelMode={maneuver.travel_mode} />
 				})}
 			</ul>
 		);
 	}
 
 	render() {
-		const { showTripDisplay, maneuvers } = this.props;
+		const { showTripPlanner, maneuvers } = this.props;
 		return (
 			<div className="trip-display">
-				{ showTripDisplay && <div className="trip-desplay-header">Trip Display <button onClick={() => {this.props.hideTripDisplay()}}>close</button></div> }
-				{ showTripDisplay && this.renderManeuverList() }
+				{ showTripPlanner && <div className="trip-desplay-header">Trip Display <button onClick={() => {this.props.hideTripDisplay()}}>close</button></div> }
+				{ showTripPlanner && maneuvers ? this.renderManeuverList() : null }
 			</div>
 		);
 	}
@@ -29,8 +30,9 @@ class TripDisplay extends Component {
 
 const mapStateToProps = (state) => {
 	return {		
-		showTripDisplay: state.tripPlannerReducer.showTripDisplay,
-		maneuvers: state.tripPlannerReducer.tripData
+		tripDisplay: state.tripPlannerReducer.tripDisplay,
+		maneuvers: state.tripPlannerReducer.tripData,
+		showTripPlanner: state.tripPlannerReducer.showTripPlanner
 	}
 }
 
