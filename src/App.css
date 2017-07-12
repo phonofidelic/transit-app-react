@@ -45,6 +45,17 @@ li {
 	background: #fff;
 }
 
+.trip-display {
+	background: #eee;
+	z-index: 1003;
+	margin-top: 90vh;
+}
+
+.trip-desplay-header {
+	height: 50px;
+	line-height: 50px;
+}
+
 .map-controls-container {
 	z-index: 1001;
 	position: fixed;
@@ -59,7 +70,7 @@ li {
 }
 
 .route-list {
-	margin-top: 90vh;
+	/*margin-top: 90vh;*/
 	/*top: 80%;*/
 }
 
@@ -92,17 +103,6 @@ li {
 	z-index: 1001;
 	display: block;
 	color: #000;
-}
-
-.trip-display {
-	background: #eee;
-	z-index: 1003;
-	/*margin-top: 90vh;*/
-}
-
-.trip-desplay-header {
-	height: 50px;
-	line-height: 50px;
 }
 
 .maneuver-item {

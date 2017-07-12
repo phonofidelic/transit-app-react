@@ -14,7 +14,7 @@ class App extends Component {
         <TripPlanner />
         <MapComponent />
         <RouteList />
-        <TripDisplay />
+        
       </div>
     );
   }

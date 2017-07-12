@@ -9,6 +9,7 @@ import Paper from 'material-ui/Paper';
 import Menu from 'material-ui/Menu';
 import MenuItem from 'material-ui/MenuItem';
 import AutoComplete from 'material-ui/AutoComplete';
+import TripDisplay from './TripDisplay';
 
 
 class TripPlanner extends Component {
@@ -51,7 +52,7 @@ class TripPlanner extends Component {
 											value={destinationInput}
 											autoFocus={true} />
 
-				<FlatButton fullWidth={true} onClick={() => {this.props.setDestination(autocompleteResults, userPos, map, destMarker, tripLayer)}}>Search</FlatButton>
+				<FlatButton fullWidth={true} onClick={() => {this.props.setDestination(autocompleteResults, userPos, map, destMarker, tripLayer)}}>Search</FlatButton>				
 			</div>
 		);
 	};
@@ -59,10 +60,13 @@ class TripPlanner extends Component {
 	render() {
 		const { showTripPlanner } = this.props;
 		return(
-			<div className="trip-planner-container">
-				<Paper className="trip-planner">
-					{!showTripPlanner ? <div onClick={() => {this.props.openTripPlanner()}}>Plan a trip</div> : this.renderDestinationInput('hello')}
-				</Paper>
+			<div>
+				<div className="trip-planner-container">
+					<Paper className="trip-planner">
+						{!showTripPlanner ? <div onClick={() => {this.props.openTripPlanner()}}>Plan a trip</div> : this.renderDestinationInput('hello')}
+					</Paper>					
+				</div>
+				<TripDisplay />
 			</div>
 		);
 	};
