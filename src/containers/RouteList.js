@@ -6,11 +6,7 @@ import RouteListItem from '../components/RouteListItem';
 
 export class RouteList extends Component {
 
-	constructor(props) {
-		super(props);
-
-		this.props.init();
-	}
+	
 
 	renderList(error) {
 		return (

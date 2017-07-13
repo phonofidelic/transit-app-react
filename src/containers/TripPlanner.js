@@ -14,17 +14,6 @@ import TripDisplay from './TripDisplay';
 
 class TripPlanner extends Component {
 
-	// renderResultsMenue(menuItems) {
-	// 	return(
-	// 		<Menu>
-	// 			<MenuItem primaryText="menu items" />
-	// 			{menuItems.map(item => {
-	// 				<MenuItem primaryText={item.properties.name} />
-	// 			})}
-	// 		</Menu>
-	// 	);
-	// }
-
 	handleUpdateInput(value) {
 		const { userPos } = this.props;
 		this.props.handleDestInputChange(value, userPos);
@@ -66,7 +55,7 @@ class TripPlanner extends Component {
 						{!showTripPlanner ? <div onClick={() => {this.props.openTripPlanner()}}>Plan a trip</div> : this.renderDestinationInput('hello')}
 					</Paper>					
 				</div>
-				<TripDisplay />
+				{/* <TripDisplay /> */}
 			</div>
 		);
 	};
