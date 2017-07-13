@@ -13,10 +13,10 @@ class ListContainer extends Component {
 	}
 
 	render() {
-		const { showTripPlanner } = this.props;
+		const { showTripPlanner, maneuvers } = this.props;
 		return (
 			<div>
-					{ showTripPlanner ? <TripDisplay /> : <RouteList />}
+					{ showTripPlanner && maneuvers ? <TripDisplay /> : <RouteList />}
 			</div>
 		);
 	}
@@ -24,7 +24,8 @@ class ListContainer extends Component {
 
 const mapStateToProps = (state) => {
 	return {
-		showTripPlanner: state.tripPlannerReducer.showTripPlanner
+		showTripPlanner: state.tripPlannerReducer.showTripPlanner,
+		maneuvers: state.tripPlannerReducer.tripData
 	}
 }
 

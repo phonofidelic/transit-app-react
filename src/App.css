@@ -56,6 +56,17 @@ li {
 	line-height: 50px;
 }
 
+.maneuver-item {
+	min-height: 50px;
+	/*line-height: 50px;*/
+	text-align: left;
+	padding: 5px;
+}
+
+.maneuver-item:hover {
+	background: #ddd;
+}
+
 .map-controls-container {
 	z-index: 1001;
 	position: fixed;
@@ -103,13 +114,6 @@ li {
 	z-index: 1001;
 	display: block;
 	color: #000;
-}
-
-.maneuver-item {
-	min-height: 50px;
-	/*line-height: 50px;*/
-	text-align: left;
-	padding: 5px;
 }
 
 .map-container {
