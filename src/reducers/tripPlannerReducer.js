@@ -6,7 +6,9 @@ import {
  	SELECT_DESTINATION,
  	RECEIVE_TRIP_DATA,
  	SHOW_TRIP_DISPLAY,
- 	HIDE_TRIP_DISPLAY } from '../actiontypes';
+ 	HIDE_TRIP_DISPLAY,
+ 	SELECT_MANEUVER } from '../actiontypes';
+import update from 'react-addons-update';
 
 const INITIAL_STATE = {
 	showTripPlanner: false,
@@ -53,7 +55,7 @@ const tripPlannerReducer = (state = INITIAL_STATE, action) => {
 		case RECEIVE_TRIP_DATA:
 			return {
 				...state,
-				tripData: action.payload
+				maneuvers: action.payload
 			}
 
 		case SHOW_TRIP_DISPLAY:
@@ -67,6 +69,25 @@ const tripPlannerReducer = (state = INITIAL_STATE, action) => {
 				...state,
 				showTripDisplay: false
 			}
+
+		case SELECT_MANEUVER:
+			return {
+				...state,
+				maneuvers: state.maneuvers.map(maneuver => {
+							if (maneuver.index !== action.payload) {
+								return {
+									...maneuver,
+									isSelected: false
+								};
+							} else {
+								return {
+									...maneuver,
+									isSelected: !maneuver.isSelected
+								}
+							}
+						}),
+				selectedManeuver: state.maneuvers[action.payload]
+			};
 
 		default: return state;
 	}

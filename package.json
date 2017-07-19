@@ -20,6 +20,7 @@
     "randomcolor": "^0.5.2",
     "react": "^15.5.4",
     "react-addons-test-utils": "^15.5.1",
+    "react-addons-update": "^15.6.0",
     "react-dom": "^15.5.4",
     "react-leaflet": "^1.1.6",
     "react-map-gl": "^2.0.2",

@@ -25,7 +25,7 @@ class ListContainer extends Component {
 const mapStateToProps = (state) => {
 	return {
 		showTripPlanner: state.tripPlannerReducer.showTripPlanner,
-		maneuvers: state.tripPlannerReducer.tripData
+		maneuvers: state.tripPlannerReducer.maneuvers
 	}
 }
 

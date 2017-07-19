@@ -24,7 +24,8 @@ import {
 	SELECT_DESTINATION,
 	RECEIVE_TRIP_DATA,
 	SHOW_TRIP_DISPLAY,
- 	HIDE_TRIP_DISPLAY } from '../actiontypes';
+ 	HIDE_TRIP_DISPLAY,
+ 	SELECT_MANEUVER } from '../actiontypes';
 import * as utils from './utils';
 
 export const init = () => {
@@ -189,9 +190,17 @@ export const setDestination = (autocompleteResults, userPos, map, destMarker, tr
 		// TODO: move the rest of this to a seperate setTrip function
 		utils.mapzenTutnByTurnRequest(userPos, selectedDestination)
 		.then(response => {
+			let maneuvers = response.data.trip.legs[0].maneuvers
+
+			maneuvers.forEach((maneuver, i) => {
+				maneuver.isSelected = false;
+				maneuver.index = i;
+				maneuver.id = Math.ceil(Math.random()*100000);
+			});
+
 			dispatch({
 				type: RECEIVE_TRIP_DATA,
-				payload: response.data.trip.legs[0].maneuvers
+				payload: maneuvers
 			});
 			return response.data.trip;
 		})
@@ -249,6 +258,16 @@ export const showTripDisplay = () => {
 	return dispatch => {
 		dispatch({
 			type: SHOW_TRIP_DISPLAY
+		});
+	}
+}
+
+export const selectManeuver = index => {
+	console.log('@selectManeuver, id:', index)
+	return dispatch => {
+		dispatch({
+			type: SELECT_MANEUVER,
+			payload: index
 		});
 	}
 }

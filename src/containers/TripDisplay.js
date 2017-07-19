@@ -9,9 +9,15 @@ class TripDisplay extends Component {
 		return (
 			<ul>
 				{this.props.maneuvers.map((maneuver, i) => {
-					return <ManeuverItem key={i} 
-															 instruction={maneuver.verbal_pre_transition_instruction}
-															 travelMode={maneuver.travel_mode} />
+					if (maneuver) {
+						return <ManeuverItem key={i}
+																 id={maneuver.id}
+																 index={maneuver.index}
+																 instruction={maneuver.verbal_pre_transition_instruction}
+																 travelMode={maneuver.travel_mode}
+																 isSelected={this.props.maneuvers[i].isSelected}
+																 selectManeuver={this.props.selectManeuver} />
+					}
 				})}
 			</ul>
 		);
@@ -29,9 +35,10 @@ class TripDisplay extends Component {
 }
 
 const mapStateToProps = (state) => {
+	console.log('### TripDisplay, state:', state)
 	return {		
 		tripDisplay: state.tripPlannerReducer.tripDisplay,
-		maneuvers: state.tripPlannerReducer.tripData,
+		maneuvers: state.tripPlannerReducer.maneuvers,
 		showTripPlanner: state.tripPlannerReducer.showTripPlanner
 	}
 }
