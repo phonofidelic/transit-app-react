@@ -16,7 +16,7 @@ class ListContainer extends Component {
 		const { showTripPlanner, maneuvers } = this.props;
 		return (
 			<div>
-					{ showTripPlanner && maneuvers ? <TripDisplay /> : <RouteList />}
+					{ showTripPlanner && maneuvers.length ? <TripDisplay /> : <RouteList />}
 			</div>
 		);
 	}
