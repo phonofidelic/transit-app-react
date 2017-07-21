@@ -382,11 +382,24 @@ export const setTripLineToMap = (map, data, tripLayer) => new Promise(resolve =>
 	// resolve(line);
 });
 
-export const mapCoordsToManeuvers = (maneuvers, coords) => new Promise( resolve => {
+export const mapCoordsToManeuvers = (maneuvers, coords) => new Promise(resolve => {
 	maneuvers.forEach(maneuver => {
-		maneuver.coords = coords[maneuver.end_shape_index];
+		// !!! BUG: maneuver coords are not acurate for transit stops ----------------------------------!!!!!!!!!!!!!!!!!!!!!!!!
+		maneuver.coords = coords[maneuver.end_shape_index - 1];
 	});
 
 	resolve(maneuvers)
+});
+
+export const setFocusMarker = (map, coords, oldMarker) => new Promise(resolve => {
+	if (oldMarker) {
+		map.removeLayer(oldMarker);
+	}
+
+	const latlng = L.latLng(coords[0], coords[1]);
+	const focusMarker = L.circle(latlng, {stroke: true, fillColor: '#fff', fillOpacity: 1.0});
+	map.addLayer(focusMarker);
+
+	resolve({map: map, focusMarker: focusMarker});
 });
 

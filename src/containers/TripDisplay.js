@@ -18,6 +18,7 @@ class TripDisplay extends Component {
 																 coords={maneuver.coords}
 																 isSelected={this.props.maneuvers[i].isSelected}
 																 map={this.props.map}
+																 focusMarker={this.props.focusMarker}
 																 centerOnCoords={this.props.centerOnCoords}
 																 selectManeuver={this.props.selectManeuver} />
 					}
@@ -44,7 +45,8 @@ const mapStateToProps = (state) => {
 		maneuvers: state.tripPlannerReducer.maneuvers,
 		showTripPlanner: state.tripPlannerReducer.showTripPlanner,
 		selectedManeuver: state.tripPlannerReducer.selectedManeuver,
-		map: state.mapReducer.map
+		map: state.mapReducer.map,
+		focusMarker: state.mapReducer.focusMarker
 	}
 }
 

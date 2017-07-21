@@ -16,6 +16,7 @@ const INITIAL_STATE = {
 	mapCenter: null,
 	mapLoading: false,
 	destMarker: null,
+	focusMarker: null,
 	tripLine: null,
 	error: null
 };
@@ -58,7 +59,8 @@ const mapReducer = (state = INITIAL_STATE, action) => {
 		case CENTER_ON_COORDS:
 			return {
 				...state,
-				map: action.payload
+				map: action.map,
+				focusMarker: action.focusMarker
 			}
 
 		case SET_MAP_ROUTES:

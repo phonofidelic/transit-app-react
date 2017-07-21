@@ -11,9 +11,8 @@ class ManeuverItem extends Component {
 		return (
 			<div>
 				<Divider />
-				<div className="maneuver-item" style={style} onClick={() => {this.props.selectManeuver(this.props.index); this.props.centerOnCoords(this.props.map, this.props.coords)}}>
+				<div className="maneuver-item" style={style} onClick={() => {this.props.selectManeuver(this.props.index); this.props.centerOnCoords(this.props.map, this.props.coords, this.props.focusMarker)}}>
 					{this.props.instruction} 
-					{this.props.coords}
 					<span style={{textAlign: 'right'}}>
 						{this.props.travelMode === 'transit' ? this.props.travelMode : null}
 					</span>

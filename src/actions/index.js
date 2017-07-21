@@ -334,12 +334,19 @@ export const handleZoomOut = map => {
 	} 
 }
 
-export const centerOnCoords = (map, coords) => {
-	map.setView({lat: coords[0], lng: coords[1]});
+export const centerOnCoords = (map, coords, oldMarker) => {
 	return dispatch => {
-		dispatch({
-			type: CENTER_ON_COORDS,
-			payload: map
+		utils.setFocusMarker(map, coords, oldMarker)
+		.then(data => {
+			data.map.setView({lat: coords[0], lng: coords[1]});
+			dispatch({
+				type: CENTER_ON_COORDS,
+				map: data.map,
+				focusMarker: data.focusMarker
+			});
+		})
+		.catch(err => {
+			console.error('setFocusMarker error:', err);
 		});
 	}
 }
