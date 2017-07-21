@@ -4,6 +4,7 @@ import * as actions from '../actions';
 import { FloatingActionButton } from 'material-ui';
 import ContentAdd from 'material-ui/svg-icons/content/add';
 import ContentRemove from 'material-ui/svg-icons/content/remove';
+import MapsMyLocation from 'material-ui/svg-icons/maps/my-location';
 
 class MapComponent extends Component {
 
@@ -14,9 +15,16 @@ class MapComponent extends Component {
 	}
 
 	renderMapControlls() {
-		const { map } = this.props;
+		const { map, userPos } = this.props;
 		return (
 			<div className="map-controls-container">
+				<FloatingActionButton 
+					mini={true} 
+					className="map-control"
+					style={{display: 'block'}}
+					onClick={() => {this.props.handleFocusOnLoc(map, userPos)}}>
+					<MapsMyLocation />
+				</FloatingActionButton>
 				<FloatingActionButton 
 					mini={true} 
 					className="map-control"
@@ -51,7 +59,8 @@ const mapStateToProps = (state) => {
 	return {
 		map: state.mapReducer.map,
 		mapLoading: state.mapReducer.mapLoading,
-		error: state.mapReducer.error
+		error: state.mapReducer.error,
+		userPos: state.locationReducer.userPos
 	}
 }
 

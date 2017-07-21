@@ -72,7 +72,8 @@ li {
 	position: fixed;
 	/*width: 100%;*/
 	right: 20px;
-	margin-top: 75vh;
+	/*margin-top: 75vh;*/
+	bottom: 80px;
 }
 
 .map-control {

@@ -39,7 +39,8 @@ const mapStateToProps = (state) => {
 	return {		
 		tripDisplay: state.tripPlannerReducer.tripDisplay,
 		maneuvers: state.tripPlannerReducer.maneuvers,
-		showTripPlanner: state.tripPlannerReducer.showTripPlanner
+		showTripPlanner: state.tripPlannerReducer.showTripPlanner,
+		selectedManeuver: state.tripPlannerReducer.selectedManeuver
 	}
 }
 

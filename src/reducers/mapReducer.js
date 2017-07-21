@@ -1,6 +1,9 @@
 import { 
 	INIT_MAP, 
 	MAP_LOADED,
+	ZOOM_IN,
+	ZOOM_OUT,
+	CENTER_ON_USER_POS,
 	SET_MAP_ROUTES,
 	UPDATE_MAP_VIEW, 
 	SET_DEST_MARKER,
@@ -30,6 +33,24 @@ const mapReducer = (state = INITIAL_STATE, action) => {
 			return {
 				...state,
 				mapLoading: false,
+				map: action.payload
+			}
+
+		case ZOOM_IN:
+			return {
+				...state,
+				map: action.payload
+			}
+
+		case ZOOM_OUT:
+			return {
+				...state,
+				map: action.payload
+			}
+
+		case CENTER_ON_USER_POS:
+			return {
+				...state,
 				map: action.payload
 			}
 

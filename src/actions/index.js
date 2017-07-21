@@ -11,6 +11,7 @@ import {
 	SET_TRIP_LINE,
 	ZOOM_IN,
 	ZOOM_OUT,
+	CENTER_ON_USER_POS,
 	MAP_ERROR,
 	SELECT_ROUTE,
 	FETCH_ROUTES_ERROR,
@@ -190,7 +191,7 @@ export const setDestination = (autocompleteResults, userPos, map, destMarker, tr
 		// TODO: move the rest of this to a seperate setTrip function
 		utils.mapzenTutnByTurnRequest(userPos, selectedDestination)
 		.then(response => {
-			let maneuvers = response.data.trip.legs[0].maneuvers
+			let maneuvers = response.data.trip.legs[0].maneuvers;
 
 			maneuvers.forEach((maneuver, i) => {
 				maneuver.isSelected = false;
@@ -272,13 +273,24 @@ export const selectManeuver = index => {
 	}
 }
 
+export const handleFocusOnLoc = (map, userPos) => {
+	map.setView(userPos);
+	return dispatch => {
+		dispatch({
+			type: CENTER_ON_USER_POS,
+			payload: map
+		});
+	}
+}
+
 export const handleZoomIn = map => {
 	console.log('zoom in');
 	map.zoomIn();
 	return dispatch => {
-		{
-			type: ZOOM_IN
-		}
+		dispatch({
+			type: ZOOM_IN,
+			payload: map
+		});
 	} 
 }
 
@@ -286,9 +298,10 @@ export const handleZoomOut = map => {
 	console.log('zoom out');
 	map.zoomOut();
 	return dispatch => {
-		{
-			type: ZOOM_OUT
-		}
+		dispatch({
+			type: ZOOM_OUT,
+			payload: map
+		});
 	} 
 }
 

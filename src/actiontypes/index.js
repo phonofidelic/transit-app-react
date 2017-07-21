@@ -9,6 +9,7 @@ export const GET_USER_POS = 'get_user_pos',
 						 SET_TRIP_LINE = 'set_trip_line',
 						 ZOOM_IN = 'zoom_in',
 						 ZOOM_OUT = 'zoom_out',
+						 CENTER_ON_USER_POS = 'center_on_user_pos',
 						 MAP_ERROR = 'map_error',
 
 						 REQUEST_ROUTES = 'request_routes',
