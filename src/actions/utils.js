@@ -340,7 +340,7 @@ export const decodePolyline = (str, precision) => new Promise(resolve => {
     resolve(coordinates);
 });
 
-export const setTripLineToMap = (map, latlngs, endShapeIndexes, tripLayer) => new Promise(resolve => {
+export const setTripLineToMap = (map, data, tripLayer) => new Promise(resolve => {
 	if (tripLayer) {
 		map.removeLayer(tripLayer);
 	}
@@ -348,9 +348,9 @@ export const setTripLineToMap = (map, latlngs, endShapeIndexes, tripLayer) => ne
 	let newTripLines = [];
 	let latlngIndex = 0;
 	let i = 0;
-	while (latlngIndex < latlngs.length) {
-		newTripLines.push(latlngs.slice(latlngIndex, endShapeIndexes[i]));
-		latlngIndex = endShapeIndexes[i];
+	while (latlngIndex < data.latlngs.length) {
+		newTripLines.push(data.latlngs.slice(latlngIndex, data.endShapeIndexes[i]));
+		latlngIndex = data.endShapeIndexes[i];
 		i+=1;
 	}
 
@@ -368,6 +368,8 @@ export const setTripLineToMap = (map, latlngs, endShapeIndexes, tripLayer) => ne
 		'#01af40',
 	];
 
+	const pedestrianColor = '#82df5a';
+
 	newTripLines.forEach((line, i) => {
 	 	tripLineLayer.addLayer(L.polyline(line, {color: testColors[i]}));
 	});
@@ -378,5 +380,13 @@ export const setTripLineToMap = (map, latlngs, endShapeIndexes, tripLayer) => ne
 
 	// const line = L.polyline(latlngs, {color: 'red', weight: 4, dashArray: [5, 10]}).addTo(map);
 	// resolve(line);
-})
+});
+
+export const mapCoordsToManeuvers = (maneuvers, coords) => new Promise( resolve => {
+	maneuvers.forEach(maneuver => {
+		maneuver.coords = coords[maneuver.end_shape_index];
+	});
+
+	resolve(maneuvers)
+});
 

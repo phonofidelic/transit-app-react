@@ -15,7 +15,10 @@ class TripDisplay extends Component {
 																 index={maneuver.index}
 																 instruction={maneuver.verbal_pre_transition_instruction}
 																 travelMode={maneuver.travel_mode}
+																 coords={maneuver.coords}
 																 isSelected={this.props.maneuvers[i].isSelected}
+																 map={this.props.map}
+																 centerOnCoords={this.props.centerOnCoords}
 																 selectManeuver={this.props.selectManeuver} />
 					}
 				})}
@@ -40,7 +43,8 @@ const mapStateToProps = (state) => {
 		tripDisplay: state.tripPlannerReducer.tripDisplay,
 		maneuvers: state.tripPlannerReducer.maneuvers,
 		showTripPlanner: state.tripPlannerReducer.showTripPlanner,
-		selectedManeuver: state.tripPlannerReducer.selectedManeuver
+		selectedManeuver: state.tripPlannerReducer.selectedManeuver,
+		map: state.mapReducer.map
 	}
 }
 

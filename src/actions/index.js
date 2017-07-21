@@ -12,6 +12,7 @@ import {
 	ZOOM_IN,
 	ZOOM_OUT,
 	CENTER_ON_USER_POS,
+	CENTER_ON_COORDS,
 	MAP_ERROR,
 	SELECT_ROUTE,
 	FETCH_ROUTES_ERROR,
@@ -44,11 +45,11 @@ export const init = () => {
 			Promise.all([
 				utils.initMap(userPos)
 				.then(map => {
-					map.on('movestart', e => {
-						dispatch({
-							type: HIDE_TRIP_PLANNER
-						});
-					});
+					// map.on('movestart', e => {
+					// 	dispatch({
+					// 		type: HIDE_TRIP_PLANNER
+					// 	});
+					// });
 
 					dispatch({
 						type: MAP_LOADED,
@@ -199,29 +200,44 @@ export const setDestination = (autocompleteResults, userPos, map, destMarker, tr
 				maneuver.id = Math.ceil(Math.random()*100000);
 			});
 
-			dispatch({
-				type: RECEIVE_TRIP_DATA,
-				payload: maneuvers
-			});
+			// dispatch({
+			// 	type: RECEIVE_TRIP_DATA,
+			// 	payload: maneuvers
+			// });
 			return response.data.trip;
 		})
 		.then(trip => {
 
-			let endShapeIndexes = [];
+			let endShapeIndexes = [],
+					beginShapeIndexes = [];
 
 			// Find all maneuvers where travel mode is 'transit' and push 
 			// that maneuvers end_shape_index to the endShapeIndexes array
 			trip.legs[0].maneuvers.forEach(maneuver => {
 				if (maneuver.travel_mode === 'transit') {
-					console.log('transit maneuver:', maneuver.end_shape_index);
 					endShapeIndexes.push(maneuver.end_shape_index);
+				} else if (maneuver.travel_mode === 'pedestrian') {
+					beginShapeIndexes.push(maneuver.begin_shape_index);
 				}
 			});
+
+			// !!! EXPERIMENTAL !!!
+			// Pass all end_shape_indexes to dat obj
+			// let allEndShapeIndexes = [];
+			// trip.legs[0].maneuvers.forEach(maneuuver => {
+			// 	allEndShapeIndexes.push(maneuver.end_shape_index);
+			// });
 
 			return utils.decodePolyline(trip.legs[0].shape)
 			.then(latlngs => {
 				// Send decoded latlngs and end shape indexes to the next step
-				return {latlngs: latlngs, endShapeIndexes: endShapeIndexes};
+				return {
+					latlngs: latlngs, 
+					endShapeIndexes: endShapeIndexes,
+					beginShapeIndexes: beginShapeIndexes,
+					// allEndShapeIndexes: allEndShapeIndexes,
+					maneuvers: trip.legs[0].maneuvers
+				};
 			})
 			.catch(err => {
 				console.error('decodePolyline error:', err);
@@ -229,7 +245,20 @@ export const setDestination = (autocompleteResults, userPos, map, destMarker, tr
 		})
 		.then(data => {
 			console.log('### data:', data)
-			return utils.setTripLineToMap(map, data.latlngs, data.endShapeIndexes, tripLayer);
+
+			utils.mapCoordsToManeuvers(data.maneuvers, data.latlngs)
+			.then(maneuvers => {
+				console.log('### mapCoordsToManeuvers, maneuvers:', maneuvers)
+				dispatch({
+					type: RECEIVE_TRIP_DATA,
+					payload: maneuvers
+				});
+			})
+			.catch(err => {
+				console.error('mapCoordsToManeuvers error:', err);
+			});
+
+			return utils.setTripLineToMap(map, data, tripLayer);
 		})
 		.then(tripLayer => {
 			dispatch({
@@ -303,5 +332,15 @@ export const handleZoomOut = map => {
 			payload: map
 		});
 	} 
+}
+
+export const centerOnCoords = (map, coords) => {
+	map.setView({lat: coords[0], lng: coords[1]});
+	return dispatch => {
+		dispatch({
+			type: CENTER_ON_COORDS,
+			payload: map
+		});
+	}
 }
 

@@ -4,6 +4,7 @@ import {
 	ZOOM_IN,
 	ZOOM_OUT,
 	CENTER_ON_USER_POS,
+	CENTER_ON_COORDS,
 	SET_MAP_ROUTES,
 	UPDATE_MAP_VIEW, 
 	SET_DEST_MARKER,
@@ -49,6 +50,12 @@ const mapReducer = (state = INITIAL_STATE, action) => {
 			}
 
 		case CENTER_ON_USER_POS:
+			return {
+				...state,
+				map: action.payload
+			}
+
+		case CENTER_ON_COORDS:
 			return {
 				...state,
 				map: action.payload
