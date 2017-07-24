@@ -385,7 +385,7 @@ export const setTripLineToMap = (map, data, tripLayer) => new Promise(resolve =>
 export const mapCoordsToManeuvers = (maneuvers, coords) => new Promise(resolve => {
 	maneuvers.forEach(maneuver => {
 		// !!! BUG: maneuver coords are not acurate for transit stops ----------------------------------!!!!!!!!!!!!!!!!!!!!!!!!
-		maneuver.coords = coords[maneuver.end_shape_index - 1];
+		maneuver.coords = coords[maneuver.begin_shape_index];
 	});
 
 	resolve(maneuvers)

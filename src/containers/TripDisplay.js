@@ -39,7 +39,7 @@ class TripDisplay extends Component {
 }
 
 const mapStateToProps = (state) => {
-	console.log('### TripDisplay, state:', state)
+	console.log('### TripDisplay, selectedManeuver:', state.tripPlannerReducer.selectedManeuver)
 	return {		
 		tripDisplay: state.tripPlannerReducer.tripDisplay,
 		maneuvers: state.tripPlannerReducer.maneuvers,
