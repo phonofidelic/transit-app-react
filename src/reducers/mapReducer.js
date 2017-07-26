@@ -6,6 +6,7 @@ import {
 	CENTER_ON_USER_POS,
 	CENTER_ON_COORDS,
 	SET_MAP_ROUTES,
+	TOGGLE_ROUTE_LINE_VIEW,
 	UPDATE_MAP_VIEW, 
 	SET_DEST_MARKER,
 	SET_TRIP_LINE,
@@ -15,9 +16,10 @@ const INITIAL_STATE = {
 	map: null, 
 	mapCenter: null,
 	mapLoading: false,
+	routeLineLayer: null,
 	destMarker: null,
 	focusMarker: null,
-	tripLine: null,
+	tripLineLayer: null,
 	error: null
 };
 
@@ -66,25 +68,33 @@ const mapReducer = (state = INITIAL_STATE, action) => {
 		case SET_MAP_ROUTES:
 			return {
 				...state,
-				map: action.payload
+				map: action.map,
+				routeLineLayer: action.routeLineLayer
 			}
 
 		case UPDATE_MAP_VIEW:
 			return {
 				...state,
-				mapCenter: action.payload
+				map: action.payload
 			}
 
 		case SET_DEST_MARKER:
 			return {
 				...state,
-				destMarker: action.payload
+				destMarker: action.destMarker,
+				map: action.map
 			}
 
 		case SET_TRIP_LINE:
 			return {
 				...state,
-				tripLine: action.payload
+				tripLineLayer: action.payload
+			}
+
+		case TOGGLE_ROUTE_LINE_VIEW:
+			return {
+				...state,
+				map: action.map
 			}
 
 		case MAP_ERROR:

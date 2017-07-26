@@ -6,9 +6,11 @@ import {
 	SET_ROUTE_COLORS,
 	INIT_MAP,
 	MAP_LOADED,
+	UPDATE_MAP_VIEW,
 	SET_MAP_ROUTES,
 	SET_DEST_MARKER,
 	SET_TRIP_LINE,
+	TOGGLE_ROUTE_LINE_VIEW,
 	ZOOM_IN,
 	ZOOM_OUT,
 	CENTER_ON_USER_POS,
@@ -79,11 +81,12 @@ export const init = () => {
 				utils.routeColorCheck(data.routes)
 				.then(colorCodedRoutes => {
 					utils.setUpRouteVisuals(colorCodedRoutes, data.map)
-					.then(map => {
+					.then(data => {
 						// Set colored routes to map
 						dispatch({
 							type: SET_MAP_ROUTES,
-							payload: map
+							map: data.map,
+							routeLineLayer: data.routeLineLayer
 						});
 					})
 					.catch(err => {
@@ -170,10 +173,10 @@ export const handleDestInputChange = (input, userPos) => {
 	}
 };
 
-export const setDestination = (autocompleteResults, userPos, map, destMarker, tripLayer) => {
-	console.log('@setDestination, autocompleteResults:', autocompleteResults);
+export const setDestination = (tripPlannerProps) => {
+	console.log('@setDestination, autocompleteResults:', tripPlannerProps.autocompleteResults);
 
-	const selectedDestination = autocompleteResults[0];
+	const selectedDestination = tripPlannerProps.autocompleteResults[0];
 
 	return dispatch => {
 		dispatch({
@@ -181,16 +184,17 @@ export const setDestination = (autocompleteResults, userPos, map, destMarker, tr
 			payload: selectedDestination
 		});
 
-		utils.focusMapOnDestination(map, selectedDestination.data.geometry.coordinates, destMarker)
+		utils.focusMapOnDestination(tripPlannerProps.map, selectedDestination.data.geometry.coordinates, tripPlannerProps.destMarker)
 		.then(marker => {
 				dispatch({
 				type: SET_DEST_MARKER,
-				payload: marker
+				destMarker: marker,
+				map: tripPlannerProps.map
 			});
 		});
 
 		// TODO: move the rest of this to a seperate setTrip function
-		utils.mapzenTutnByTurnRequest(userPos, selectedDestination)
+		utils.mapzenTutnByTurnRequest(tripPlannerProps.userPos, selectedDestination)
 		.then(response => {
 			let maneuvers = response.data.trip.legs[0].maneuvers;
 
@@ -258,12 +262,12 @@ export const setDestination = (autocompleteResults, userPos, map, destMarker, tr
 				console.error('mapCoordsToManeuvers error:', err);
 			});
 
-			return utils.setTripLineToMap(map, data, tripLayer);
+			return utils.setTripLineToMap(tripPlannerProps.map, data, tripPlannerProps.tripLayer, tripPlannerProps.routeLineLayer);
 		})
-		.then(tripLayer => {
+		.then(tripLineLayer => {
 			dispatch({
 				type: SET_TRIP_LINE,
-				payload: tripLayer
+				payload: tripLineLayer
 			});
 
 			dispatch({
@@ -288,6 +292,24 @@ export const showTripDisplay = () => {
 	return dispatch => {
 		dispatch({
 			type: SHOW_TRIP_DISPLAY
+		});
+	}
+}
+
+export const toggleRouteLineView = (map, layerToRemove, layerToAdd) => {
+	
+	if (layerToRemove) {
+		map.removeLayer(layerToRemove);
+	}
+
+	if (layerToAdd) {
+		map.addLayer(layerToAdd);	
+	}
+
+	return dispatch => {
+		dispatch({
+			type: TOGGLE_ROUTE_LINE_VIEW,
+			map: map,
 		});
 	}
 }

@@ -9,7 +9,6 @@ import Paper from 'material-ui/Paper';
 import Menu from 'material-ui/Menu';
 import MenuItem from 'material-ui/MenuItem';
 import AutoComplete from 'material-ui/AutoComplete';
-import TripDisplay from './TripDisplay';
 
 
 class TripPlanner extends Component {
@@ -20,14 +19,19 @@ class TripPlanner extends Component {
 	}
 
 	renderDestinationInput() {
-		const {
-			destinationInput, 
-			userPos, 
-			autocompleteResults, 
-			map,
-			destMarker,
-			tripLayer
-		} = this.props;
+		const tripPlannerProps = {
+			destinationInput: this.props.destinationInput,
+			userPos: this.props.userPos, 
+			autocompleteResults: this.props.autocompleteResults, 
+			map: this.props.map,
+			destMarker: this.props.destMarker,
+			tripLineLayer: this.props.tripLineLayer,
+			routeLineLayer: this.props.routeLineLayer
+		};
+
+		
+
+		// const tripPlannerProps;
 		const dataSourceConfig = {
 			text: 'label',
 			value: 'data'
@@ -36,40 +40,41 @@ class TripPlanner extends Component {
 			<div>
 				<AutoComplete hintText="Where would you like to go?"
 									 		onUpdateInput={this.handleUpdateInput.bind(this)}
-											dataSource={autocompleteResults}
+											dataSource={tripPlannerProps.autocompleteResults}
 											dataSourceConfig={dataSourceConfig}
-											value={destinationInput}
+											value={tripPlannerProps.destinationInput}
 											autoFocus={true} />
 
-				<FlatButton fullWidth={true} onClick={() => {this.props.setDestination(autocompleteResults, userPos, map, destMarker, tripLayer)}}>Search</FlatButton>				
+				<FlatButton fullWidth={true} onClick={() => {this.props.setDestination(tripPlannerProps)}}>Search</FlatButton>				
 			</div>
 		);
 	};
 
 	render() {
-		const { showTripPlanner } = this.props;
+		const { showTripPlanner, map, routeLineLayer, tripLineLayer } = this.props;
 		return(
 			<div>
 				<div className="trip-planner-container">
 					<Paper className="trip-planner">
-						{!showTripPlanner ? <div onClick={() => {this.props.openTripPlanner()}}>Plan a trip</div> : this.renderDestinationInput('hello')}
+						{!showTripPlanner ? <div onClick={() => {this.props.openTripPlanner(); this.props.toggleRouteLineView(map, routeLineLayer, tripLineLayer)}}>Plan a trip</div> : this.renderDestinationInput('hello')}
 					</Paper>					
 				</div>
-				{/* <TripDisplay /> */}
 			</div>
 		);
 	};
 };
 
 const mapStateToProps = state => {
+	console.log('state, map:', state.mapReducer.map)
 	return {
 		userPos: state.locationReducer.userPos,
 		showTripPlanner: state.tripPlannerReducer.showTripPlanner,
 		destinationInput: state.tripPlannerReducer.destinationInput,
 		autocompleteResults: state.tripPlannerReducer.autocompleteResults,
 		map: state.mapReducer.map,
+		routeLineLayer: state.mapReducer.routeLineLayer,
 		destMarker: state.mapReducer.destMarker,
-		tripLayer: state.mapReducer.tripLayer
+		tripLineLayer: state.mapReducer.tripLineLayer
 	}
 };
 

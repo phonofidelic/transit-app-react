@@ -28,10 +28,17 @@ class TripDisplay extends Component {
 	}
 
 	render() {
-		const { showTripPlanner, maneuvers } = this.props;
+		const { 
+			showTripPlanner, 
+			maneuvers,
+			map,
+			routeLineLayer,
+			tripLineLayer
+		} = this.props;
+
 		return (
 			<div className="trip-display">
-				{ showTripPlanner && <div className="trip-desplay-header">Trip Display <button onClick={() => {this.props.hideTripDisplay()}}>close</button></div> }
+				{ showTripPlanner && <div className="trip-desplay-header">Trip Display <button onClick={() => {this.props.hideTripDisplay(); this.props.toggleRouteLineView(map, tripLineLayer, routeLineLayer)}}>close</button></div> }
 				{ showTripPlanner && maneuvers ? this.renderManeuverList() : null }
 			</div>
 		);
@@ -46,6 +53,8 @@ const mapStateToProps = (state) => {
 		showTripPlanner: state.tripPlannerReducer.showTripPlanner,
 		selectedManeuver: state.tripPlannerReducer.selectedManeuver,
 		map: state.mapReducer.map,
+		routeLineLayer: state.mapReducer.routeLineLayer,
+		tripLineLayer: state.mapReducer.tripLineLayer,
 		focusMarker: state.mapReducer.focusMarker
 	}
 }

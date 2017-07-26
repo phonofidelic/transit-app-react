@@ -112,8 +112,8 @@ export const setUpRouteVisuals = (routes, map) => new Promise((resolve) => {
 		});
 	});
 
-	routeLineLayer.addTo(map);
-	resolve(map);
+	map.addLayer(routeLineLayer);
+	resolve({ map: map, routeLineLayer: routeLineLayer});
 });
 
 export const initMap = userPos => new Promise(resolve => {
@@ -340,7 +340,9 @@ export const decodePolyline = (str, precision) => new Promise(resolve => {
     resolve(coordinates);
 });
 
-export const setTripLineToMap = (map, data, tripLayer) => new Promise(resolve => {
+export const setTripLineToMap = (map, data, tripLayer, routeLineLayer) => new Promise(resolve => {
+	map.removeLayer(routeLineLayer);
+
 	if (tripLayer) {
 		map.removeLayer(tripLayer);
 	}
