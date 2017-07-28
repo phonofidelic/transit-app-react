@@ -262,14 +262,15 @@ export const setDestination = (tripPlannerProps) => {
 				});
 
 				// Calculate estimated elapsed time from trip start to maneuver
-				maneuvers.forEach((maneuver, i) => {
-					// maneuvers[i].elapsedTime = maneuvers[i].time + 
+				for (var i = 0; i < maneuvers.length; i++) {
 					let time = 0;
 					for (var j = 0; j < i; j++) {
 						time += maneuvers[j].time;
 					}
-					maneuvers[i].arrivalTime = time * 1000
-				})
+
+					// Multiply by 1000 to convert value from seconds to miliseconds
+					maneuvers[i].arrivalTime = time * 1000;
+				};
 
 				console.log('### mapCoordsToManeuvers, maneuvers:', maneuvers)
 
@@ -282,7 +283,7 @@ export const setDestination = (tripPlannerProps) => {
 				console.error('mapCoordsToManeuvers error:', err);
 			});
 
-			return utils.setTripLineToMap(tripPlannerProps.map, data, tripPlannerProps.tripLayer, tripPlannerProps.routeLineLayer);
+			return utils.setTripLineToMap(tripPlannerProps.map, data, tripPlannerProps.tripLineLayer, tripPlannerProps.routeLineLayer);
 		})
 		.then(tripLineLayer => {
 			dispatch({

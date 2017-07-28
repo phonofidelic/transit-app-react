@@ -341,11 +341,11 @@ export const decodePolyline = (str, precision) => new Promise(resolve => {
     resolve(coordinates);
 });
 
-export const setTripLineToMap = (map, data, tripLayer, routeLineLayer) => new Promise(resolve => {
+export const setTripLineToMap = (map, data, oldTripLineLayer, routeLineLayer) => new Promise(resolve => {
 	map.removeLayer(routeLineLayer);
 
-	if (tripLayer) {
-		map.removeLayer(tripLayer);
+	if (oldTripLineLayer) {		
+		map.removeLayer(oldTripLineLayer);
 	}
 
 	let newTripLines = [];
@@ -359,7 +359,7 @@ export const setTripLineToMap = (map, data, tripLayer, routeLineLayer) => new Pr
 
 	console.log('### newTripLines:', newTripLines);
 
-	let tripLineLayer = L.layerGroup()
+	let tripLineLayer = L.layerGroup();
 
 	const testColors = [		
 		'#00985f',
