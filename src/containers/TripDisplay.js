@@ -16,6 +16,10 @@ class TripDisplay extends Component {
 																 instruction={maneuver.verbal_pre_transition_instruction}
 																 travelMode={maneuver.travel_mode}
 																 coords={maneuver.coords}
+																 time={maneuver.time}
+																 arrivalTime={maneuver.arrivalTime}
+																 transitColor={maneuver.transitColor}
+																 tripStartTime={this.props.tripStartTime}
 																 isSelected={this.props.maneuvers[i].isSelected}
 																 map={this.props.map}
 																 focusMarker={this.props.focusMarker}
@@ -52,6 +56,7 @@ const mapStateToProps = (state) => {
 		maneuvers: state.tripPlannerReducer.maneuvers,
 		showTripPlanner: state.tripPlannerReducer.showTripPlanner,
 		selectedManeuver: state.tripPlannerReducer.selectedManeuver,
+		tripStartTime: state.tripPlannerReducer.tripStartTime,
 		map: state.mapReducer.map,
 		routeLineLayer: state.mapReducer.routeLineLayer,
 		tripLineLayer: state.mapReducer.tripLineLayer,

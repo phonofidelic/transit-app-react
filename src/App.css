@@ -64,7 +64,20 @@ li {
 }
 
 .maneuver-item:hover {
-	background: #ddd;
+	background: #ddd !important;
+}
+
+.maneuver-time {
+	font-size: 0.8em;
+	color: #888;
+}
+
+.maneuver-type-indicator {
+	width: 50px;
+	/*height: 100%;*/
+	margin: 0px;
+	position: absolute;
+	right: 0px;
 }
 
 .map-controls-container {

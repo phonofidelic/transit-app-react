@@ -31,6 +31,7 @@ export const getUserPos = new Promise((resolve) => {
 	});
 });
 
+// TODO: disable when in user is in plan trip mode? ###################### TODO
 const handleMapScroll = map => {
 	let mapCenter = map.getCenter();
 	let mapBounds = map.getBounds();

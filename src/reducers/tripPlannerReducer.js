@@ -7,7 +7,8 @@ import {
  	RECEIVE_TRIP_DATA,
  	SHOW_TRIP_DISPLAY,
  	HIDE_TRIP_DISPLAY,
- 	SELECT_MANEUVER } from '../actiontypes';
+ 	SELECT_MANEUVER,
+ 	SET_TRIP_START_TIME } from '../actiontypes';
 import update from 'react-addons-update';
 
 const INITIAL_STATE = {
@@ -17,7 +18,8 @@ const INITIAL_STATE = {
 	selectedDestination: null,
 	tripData: null,
 	showTripDisplay: false,
-	maneuvers: []
+	maneuvers: [],
+	tripStartTime: null
 };
 
 const tripPlannerReducer = (state = INITIAL_STATE, action) => {
@@ -55,7 +57,8 @@ const tripPlannerReducer = (state = INITIAL_STATE, action) => {
 		case RECEIVE_TRIP_DATA:
 			return {
 				...state,
-				maneuvers: action.payload
+				maneuvers: action.payload,
+				tripStartTime: Date.now()
 			}
 
 		case SHOW_TRIP_DISPLAY:

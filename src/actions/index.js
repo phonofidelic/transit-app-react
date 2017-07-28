@@ -252,7 +252,27 @@ export const setDestination = (tripPlannerProps) => {
 
 			utils.mapCoordsToManeuvers(data.maneuvers, data.latlngs)
 			.then(maneuvers => {
+				
+				
+				// If maneuver is of type transit, add transit color prop.
+				maneuvers.forEach(maneuver => {
+					if (maneuver.transit_info) {
+						maneuver.transitColor = `#${maneuver.transit_info.color.toString(16)}`;
+					}
+				});
+
+				// Calculate estimated elapsed time from trip start to maneuver
+				maneuvers.forEach((maneuver, i) => {
+					// maneuvers[i].elapsedTime = maneuvers[i].time + 
+					let time = 0;
+					for (var j = 0; j < i; j++) {
+						time += maneuvers[j].time;
+					}
+					maneuvers[i].arrivalTime = time * 1000
+				})
+
 				console.log('### mapCoordsToManeuvers, maneuvers:', maneuvers)
+
 				dispatch({
 					type: RECEIVE_TRIP_DATA,
 					payload: maneuvers
