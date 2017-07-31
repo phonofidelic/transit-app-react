@@ -32,7 +32,7 @@ export const getUserPos = new Promise((resolve) => {
 });
 
 // TODO: disable when in user is in plan trip mode? ###################### TODO
-const handleMapScroll = map => {
+export const handleMapScroll = (map, oldRouteLineLayer) => {
 	let mapCenter = map.getCenter();
 	let mapBounds = map.getBounds();
 
@@ -58,7 +58,7 @@ const handleMapScroll = map => {
 		})
 		.then(colorCodedRoutes => {
 			handleError(colorCodedRoutes, 'colorCodedRoutes');
-			return setUpRouteVisuals(colorCodedRoutes, map);
+			return setUpRouteVisuals(colorCodedRoutes, map, oldRouteLineLayer);
 		})
 		.catch(err => {
 			console.error('findOperatorsInArea error:', err);
@@ -98,7 +98,11 @@ export const routeColorCheck = routes => new Promise(resolve => {
 	resolve(routes);
 });
 
-export const setUpRouteVisuals = (routes, map) => new Promise((resolve) => {
+export const setUpRouteVisuals = (routes, map, oldRouteLineLayer) => new Promise((resolve) => {
+	if(oldRouteLineLayer) {
+		map.removeLayer(oldRouteLineLayer);
+	}
+
 	let routeLineLayer = L.layerGroup();
 
 	routes.map((route) => {
@@ -138,13 +142,15 @@ export const initMap = userPos => new Promise(resolve => {
 	map.lastBbox = map.getBounds();
 
 	// Add event listeners
-	map.on('movestart', e => {
-		// Dispatch HIDE_TRIP_PLANNER
-	});
+	// map.on('movestart', e => {
+	// 	// Dispatch HIDE_TRIP_PLANNER
+	// });
 
-	map.on('moveend', e => {
-		handleMapScroll(map);
-	});
+	// Move handler to init function in actions/index.js?
+	// map.on('moveend', e => {
+	// 	// TODO: Only call handleMapScroll if user is not in plan trip mode
+	// 	handleMapScroll(map);
+	// });
 
 	resolve(map);
 
@@ -387,7 +393,6 @@ export const setTripLineToMap = (map, data, oldTripLineLayer, routeLineLayer) =>
 
 export const mapCoordsToManeuvers = (maneuvers, coords) => new Promise(resolve => {
 	maneuvers.forEach(maneuver => {
-		// !!! BUG: maneuver coords are not acurate for transit stops ----------------------------------!!!!!!!!!!!!!!!!!!!!!!!!
 		maneuver.coords = coords[maneuver.begin_shape_index];
 	});
 

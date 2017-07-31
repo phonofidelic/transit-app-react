@@ -32,6 +32,9 @@ import {
  	SELECT_MANEUVER } from '../actiontypes';
 import * as utils from './utils';
 
+// State tracker to check view mode
+let planTripMode = false;
+
 export const init = () => {
 	return dispatch => {
 		utils.getUserPos.then(userPos => {
@@ -51,6 +54,18 @@ export const init = () => {
 					// 	dispatch({
 					// 		type: HIDE_TRIP_PLANNER
 					// 	});
+					// });
+
+					// // Add moveend handler herre instead of in utils.initMap?
+					// map.on('moveend', e => {
+					// 	if (!planTripMode) {
+					// 		utils.handleMapScroll(map);
+
+					// 		dispatch({
+					// 			type: UPDATE_MAP_VIEW,
+					// 			payload: map
+					// 		});
+					// 	}
 					// });
 
 					dispatch({
@@ -82,13 +97,24 @@ export const init = () => {
 				.then(colorCodedRoutes => {
 					utils.setUpRouteVisuals(colorCodedRoutes, data.map)
 					.then(data => {
+
+						// // Add moveend handler to map object
+						// data.map.on('moveend', e => {
+						// 	if (!planTripMode) {
+						// 		utils.handleMapScroll(data.map, data.routeLineLayer);	
+						// 	}
+						// });
+						
 						// Set colored routes to map
 						dispatch({
 							type: SET_MAP_ROUTES,
 							map: data.map,
 							routeLineLayer: data.routeLineLayer
 						});
+
+
 					})
+					.then()
 					.catch(err => {
 						console.error('setUpRouteVisuals error:', err);
 					});
@@ -145,6 +171,9 @@ export const fetchStops = (route) => {
 
 export const openTripPlanner = () => {
 	console.log('@openTripPlanner called')
+
+	planTripMode = true;
+
 	return dispatch => {
 		dispatch({
 			type: SHOW_TRIP_PLANNER
@@ -302,6 +331,7 @@ export const setDestination = (tripPlannerProps) => {
 };
 
 export const hideTripDisplay = () => {
+	planTripMode = false;
 	return dispatch => {
 		dispatch({
 			type: HIDE_TRIP_PLANNER
@@ -318,7 +348,10 @@ export const showTripDisplay = () => {
 }
 
 export const toggleRouteLineView = (map, layerToRemove, layerToAdd) => {
-	
+	console.log('@ toggleRouteLineView, map:', map, 
+							'\n											layerToRemove:', layerToRemove,
+							'\n											layerToAdd:', layerToAdd);
+
 	if (layerToRemove) {
 		map.removeLayer(layerToRemove);
 	}
